@@ -52,7 +52,8 @@ var demoController = {
 
 
 	onNewGameID : function(data) {
-
+		this.socket.removeListener('newConnectionID');
+		
 		//display text + qrcode
 		var $container = $('#info-connection').show(),
 			$url = $('.mobile-url', $container),
@@ -69,6 +70,7 @@ var demoController = {
 	onNewBridge : function() {
 
 		$('#info-connection').hide();
+		this.socket.removeListener('newBridge');
 
 		this.bindEventActions();
 	},
@@ -87,8 +89,16 @@ var demoController = {
 			$containerInfo.html('stop');
 		});
 
+		this.socket.on('game joined', function() {
+			$containerInfo.html('Game joined. Waiting for another player...');
+		});
+
+		this.socket.on('game ready', function() {
+			$containerInfo.html('Ready !');
+		});
+
 	}
 
 
 
-}
+};

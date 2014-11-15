@@ -55,7 +55,6 @@ function newHost(socket) {
 
 
 function newJoin(socket, data) {
-
     var connectionID = data.connectionID;
     var room = io.sockets.adapter.rooms[connectionID];
 
