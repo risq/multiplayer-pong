@@ -15,8 +15,7 @@ server.listen(config.port, config.url);
 try {
     deviceConnectionsManager.init(io);
     deviceConnectionsManager.onPlayerJoin(function (player) {
-        console.log(player);
-        //gameRoomsManager.findGameRoom(player);
+        gameRoomsManager.findGameRoom(player);
     });
 } catch (err) {
     console.log(err);

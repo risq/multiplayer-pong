@@ -3,7 +3,7 @@
 ===================================================*/
 
 
-DeviceConnection = require('./class/DeviceConnection');
+var DeviceConnection = require('./class/DeviceConnection');
 
 var io,
     deviceConnections = [];

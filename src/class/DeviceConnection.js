@@ -37,8 +37,8 @@ DeviceConnection.prototype.bindEvents = function() {
 
 DeviceConnection.prototype.getPlayerSockets = function() {
     return {
-        desktop: this.desktop,
-        mobile: this.mobile
+        desktopSocket: this.desktop,
+        mobileSocket: this.mobile
     };
 };
 

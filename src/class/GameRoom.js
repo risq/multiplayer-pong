@@ -8,6 +8,7 @@ function GameRoom(gameRoomID) {
         hostPlayer: null,
         guestPlayer: null
     };
+    this.isReady = false;
 }
 
 GameRoom.prototype.join = function(desktopSocket, mobileSocket) {
@@ -22,7 +23,7 @@ GameRoom.prototype.join = function(desktopSocket, mobileSocket) {
             desktop: desktopSocket,
             mobile: mobileSocket || null
         };
-        this.players.hostPlayer.emit('game joined', {
+        this.players.hostPlayer.desktop.emit('game joined', {
             gameRoomID: this.gameRoomID,
             isHost: false
         });
@@ -33,19 +34,20 @@ GameRoom.prototype.join = function(desktopSocket, mobileSocket) {
             desktop: desktopSocket,
             mobile: mobileSocket || null
         };
-        this.players.hostPlayer.emit('game joined', {
+        this.players.hostPlayer.desktop.emit('game joined', {
             gameRoomID: this.gameRoomID,
             isHost: true
         });
     }
 
-    if (this.isReady()) {
-        this.players.hostPlayer.emit('game ready');
-        this.players.guestPlayer.emit('game ready');
+    if (this.players.guestPlayer) {
+        this.isReady = true;
+        this.players.hostPlayer.desktop.emit('game ready');
+        this.players.guestPlayer.desktop.emit('game ready');
+        this.bindEvents();
+        this.startGame();
     }
 
-    this.bindEvents();
-    this.startGame();
 
     return true;
 };
@@ -65,10 +67,6 @@ GameRoom.prototype.bindEvents = function() {
     // this.mobile.on('mobileStop', function() {
     //     self.computer.emit('stop');
     // });
-};
-
-GameRoom.prototype.isReady = function() {
-    return this.players.hostPlayer !== null;
 };
 
 module.exports = GameRoom;
