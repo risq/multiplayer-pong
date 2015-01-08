@@ -1,39 +1,25 @@
-Ball = function(radius, color, posX, posY) {
+Ball = function(pos, radius, color) {
     PIXI.DisplayObjectContainer.call( this );
-    this.radius = radius || 10;
-    this.color  = color  || 0xFFFFFF;
+    this.radius = radius || 28;
+    this.color  = color  || parseInt(Please.make_color().slice(1), 16);
     this.vel = new Vector2(0, 0);
 
-    this.x = posX;
-    this.y = posY;
+    console.log();
 
-    this.init();
+	var graphics = new PIXI.Graphics();
+	graphics.beginFill(this.color);
+	graphics.drawRect(0, 0, this.radius, this.radius);
+	this.addChild(graphics);
+
+    this.x = pos ? pos.x : 0;
+    this.y = pos ? pos.y : 0;
 };
 
 Ball.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 Ball.prototype.constructor = Ball;
 
 Ball.prototype.init = function() {
-	var graphics = new PIXI.Graphics();
-	graphics.beginFill(this.color);
- 	 
-	// draw a rectangle
-	graphics.drawCircle(0, 0, this.radius);
-
-	this.addChild(graphics);
-
-	console.log(this);
+	
 };
 
-Ball.prototype.update = function(delta) {
-	this.x = this.x + this.vel.x * delta;
-	this.y = this.y + this.vel.y * delta;
-};
 
-Ball.prototype.setVel = function(vel) {
-	this.vel.copy(vel);
-};
-
-Ball.prototype.addVel = function(vel) {
-	this.vel.addSelf(vel);
-};

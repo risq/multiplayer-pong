@@ -1,1 +1,1 @@
-gameManager.init();
+G.appManager.init();
