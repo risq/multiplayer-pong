@@ -14,7 +14,7 @@ function demoInit() {
 
 		$.getScript( 'http://'+address+"/socket.io/socket.io.js" )
 			.done(function( ) {
-				demoController.init(address);
+				deviceConnection.init(address);
 			});
 
 	});
@@ -22,36 +22,41 @@ function demoInit() {
 }
 
 
+/**************************************************
+ * App
+ ***************************************************/
+var App = {
 
+};
 
 
 /**************************************************
  * Connection
  ***************************************************/
-var demoController = {
+var deviceConnection = {
 
 
 	init : function (address) {
 
 		this.socket = io.connect(address);
 
-		this.sendStardHosting();
-		this.bindEventStart();
+		this.sendHostRequest();
+		this.bindSocketEvents();
 
 
 	},
 
-	sendStardHosting : function () {
+	sendHostRequest : function () {
 		this.socket.emit('newHosting');
 	},
 
-	bindEventStart : function() {
-		this.socket.on('newConnectionID', this.onNewGameID.bind(this) );
-		this.socket.on('newBridge', this.onNewBridge.bind(this) );
+	bindSocketEvents : function() {
+		this.socket.on('newConnectionID', this.onNewConnectionID.bind(this) );
+		this.socket.on('newConnection', this.onNewBridge.bind(this) );
 	},
 
 
-	onNewGameID : function(data) {
+	onNewConnectionID : function(data) {
 		this.socket.removeListener('newConnectionID');
 		
 		//display text + qrcode
@@ -70,35 +75,67 @@ var demoController = {
 	onNewBridge : function() {
 
 		$('#info-connection').hide();
-		this.socket.removeListener('newBridge');
+		this.socket.removeListener('newConnection');
 
-		this.bindEventActions();
+		this.initApp();
 	},
 
-	bindEventActions : function () {
+	initApp : function () {
 
 		var $containerInfo = $('#container-info').show();
+		var $gameState = $('#game-state');
+		var $playerControlData = $('#player-control-data');
+		var $opponentControlData = $('#opponent-control-data');
 
-		this.socket.on('top', function() {
-			$containerInfo.html('top');
+		var isHost;
+		var gameRoomID;
+
+		this.socket.on('mobile top', function() {
+			$playerControlData.html('top');
 		});
-		this.socket.on('bottom', function() {
-			$containerInfo.html('bottom');
+		this.socket.on('mobile bottom', function() {
+			$playerControlData.html('bottom');
 		});
-		this.socket.on('stop', function() {
-			$containerInfo.html('stop');
+		this.socket.on('mobile stop', function() {
+			$playerControlData.html('');
 		});
 
-		this.socket.on('game joined', function() {
-			$containerInfo.html('Game joined. Waiting for another player...');
+		this.socket.on('opponent top', function() {
+			console.log('opponent top');
+			$opponentControlData.html('top');
+		});
+
+		this.socket.on('opponent bottom', function() {
+			$opponentControlData.html('bottom');
+		});
+
+		this.socket.on('opponent stop', function() {
+			$opponentControlData.html('');
+		});
+
+		this.socket.on('opponent disconnect', function() {
+			$opponentControlData.html('');
+			$gameState.html('Opponent disconnected...');
+		});
+
+		this.socket.on('game joined', function(data) {
+			console.log(data);
+			isHost = data.isHost;
+			gameRoomID = data.gameRoomID;
+			$gameState.html('Game #' + gameRoomID + ' joined. Waiting for another player...');
 		});
 
 		this.socket.on('game ready', function() {
-			$containerInfo.html('Ready !');
+			if (isHost) {
+				$gameState.html('Game #' + gameRoomID + ' (host)');
+			}
+			else {
+				$gameState.html('Game #' + gameRoomID);
+			}
 		});
 
+
 	}
-
-
-
 };
+
+

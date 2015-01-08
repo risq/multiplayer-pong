@@ -8,14 +8,15 @@ $(function() {
  ***************************************************/
 function mobileInit() {
 
-	var self = this;
-
-
 	$.getJSON("/config.json", function(data) {
 
-		self.address = data.url+":"+data.port;
+		var address = data.url+":"+data.port;
 
-		MobileController.init(address);
+		$.getScript( 'http://'+address+"/socket.io/socket.io.js" )
+			.done(function( ) {
+				MobileController.init(address);
+			});
+
 
 	});
 
@@ -29,26 +30,24 @@ var MobileController = {
 
 	init: function(address) {
 
-		var self = this;
 		this.address = address;
 
-		$.getScript( 'http://'+this.address+"/socket.io/socket.io.js" )
-			.done(function( ) {
-				self.socket = io.connect(self.address);
+		this.socket = io.connect(this.address);
 
-				var idGame = self.getQueryVariable('id');
+		var idGame = this.getQueryVariable('id');
 
-				//if id automatic connection
-				if(idGame !== false) {
-					self.sendJoinHosting(idGame);
-				}
 
-			});
+		//if id, automatic connection
+		var self = this;
+
+		if(idGame !== false) {
+			self.sendJoinRequest(idGame);
+		}
 
 	},
 
 
-	sendJoinHosting : function (id) {
+	sendJoinRequest : function (id) {
 
 		var data = {
 			connectionID : id
@@ -58,31 +57,35 @@ var MobileController = {
 
 		this.socket.emit('joinHosting', data);
 
-		this.socket.on('newBridge', function() {
+		this.socket.on('newConnection', function() {
 			self.bindActionController();
-			self.socket.off('newBridge');
+			self.socket.off('newConnection');
 		});
 	},
 
 
-	bindActionController			: function () {
+	bindActionController: function () {
 
 		var self = this;
 
-		$('#button-top').on('touchstart', function() {
+		$('#button-top').on('touchstart mousedown', function() {
 			self.socket.emit('mobileTop');
+			console.log('emitting ' + mobileTop);
 		})
-		.on('touchend', function(){
+		.on('touchend mouseup', function(){
 			self.socket.emit('mobileStop');
+			console.log('emitting ' + mobileStop);
 		});
 
 
-		$('#button-bottom').on('touchstart', function() {
+		$('#button-bottom').on('touchstart mousedown', function() {
 			self.socket.emit('mobileBottom');
+			console.log('emitting ' + mobileBottom);
 		})
-		.on('touchend', function(){
+		.on('touchend mouseup', function(){
 			self.socket.emit('mobileStop');
-		});;
+			console.log('emitting ' + mobileStop);
+		});
 	},
 
 

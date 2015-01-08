@@ -6,36 +6,30 @@ function DeviceConnection(connectionID) {
     this.connectionID = connectionID;
 }
 
-DeviceConnection.prototype.setMobile = function(socket) {
+var p = DeviceConnection.prototype;
 
-    console.log("mobile ok");
+p.setMobile = function(socket) {
+
     this.mobile = socket;
-    this.mobile.emit('newBridge');
-    this.desktop.emit('newBridge');
-
-    this.bindEvents();
+    this.mobile.emit('newConnection');
+    this.desktop.emit('newConnection');
 };
 
-DeviceConnection.prototype.setComputer = function(socket) {
+p.setDesktop = function(socket) {
     this.desktop = socket;
 };
 
 /*
  * Active events for the two socket
  */
-DeviceConnection.prototype.bindEvents = function() {
-    this.mobile.on('mobileTop', function() {
-        this.desktop.emit('top');
-    }.bind(this));
-    this.mobile.on('mobileBottom', function() {
-        this.desktop.emit('bottom');
-    }.bind(this));
-    this.mobile.on('mobileStop', function() {
-        this.desktop.emit('stop');
-    }.bind(this));
+p.initEvents = function(player) {
+    this.mobile.on('mobileTop', player.onMobileTop.bind(player));
+    this.mobile.on('mobileBottom', player.onMobileBottom.bind(player));
+    this.mobile.on('mobileStop', player.onMobileStop.bind(player));
+    this.desktop.on('disconnect', player.onDisconnect.bind(player));
 };
 
-DeviceConnection.prototype.getPlayerSockets = function() {
+p.getPlayerSockets = function() {
     return {
         desktopSocket: this.desktop,
         mobileSocket: this.mobile

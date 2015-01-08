@@ -11,6 +11,6 @@
   "dependencies": {
     "express": "^4.10.2",
     "lodash": "^2.4.1",
-    "socket.io": "^1.2.0"
+    "socket.io": "^1.2.1"
   }
 }

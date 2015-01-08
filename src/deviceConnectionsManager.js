@@ -19,17 +19,17 @@ function init(socketio) {
     io.sockets.on('connection', function(socket) {
 
         socket.on('newHosting', function() {
-            newHost(socket);
+            newDesktopConnection(socket);
         });
 
         socket.on('joinHosting', function(data) {
-            newJoin(socket, data);
+            newMobileConnection(socket, data);
         });
     });
 }
 
 
-function newHost(socket) {
+function newDesktopConnection(socket) {
     // Create a unique Socket.IO Room
     var connectionID = (Math.random() * 100000) | 0;
 
@@ -47,14 +47,14 @@ function newHost(socket) {
 
         //we create new DeviceConnection
         deviceConnections[connectionID] = new DeviceConnection(connectionID);
-        deviceConnections[connectionID].setComputer(socket);
+        deviceConnections[connectionID].setDesktop(socket);
     } else {
-        this.newHost(socket);
+        this.newDesktopConnection(socket);
     }
 }
 
 
-function newJoin(socket, data) {
+function newMobileConnection(socket, data) {
     var connectionID = data.connectionID;
     var room = io.sockets.adapter.rooms[connectionID];
 
@@ -62,7 +62,7 @@ function newJoin(socket, data) {
     if (room !== undefined) {
         socket.join(connectionID);
         deviceConnections[connectionID].setMobile(socket);
-        onPlayerJoinCallback(deviceConnections[connectionID].getPlayerSockets());
+        onPlayerJoinCallback(deviceConnections[connectionID]);
     } else {
         //socket.emit('error', {errorType: -1, message: "Aucune room correspondante"});
     }
@@ -74,7 +74,7 @@ function onPlayerJoin(callback) {
 
 module.exports = {
     init: init,
-    newHost: newHost,
-    newJoin: newJoin,
+    newDesktopConnection: newDesktopConnection,
+    newMobileConnection: newMobileConnection,
     onPlayerJoin: onPlayerJoin
 };

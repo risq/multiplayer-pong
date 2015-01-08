@@ -22,27 +22,55 @@ function findGameRoom(player) {
 
     var firstWaitingRoom = null;
 
+    // find the first waiting room
     if (waitingRooms.length) {
         firstWaitingRoom = _.find(waitingRooms, function(room) {
             return room.isReady === false;
         });
     }
 
-    console.log('finding a game room for new player..');
+    console.log('Finding a game room for new player..');
 
     if (firstWaitingRoom) {
-        if (firstWaitingRoom.join(player.desktopSocket, player.mobileSocket)) {
-            gameRooms[firstWaitingRoom.gameRoomID] = firstWaitingRoom;
+        if (firstWaitingRoom.join(player, this)) {
+
+            gameRooms[firstWaitingRoom.ID] = firstWaitingRoom;
             waitingRooms.splice(0, 1);
+
+            console.log('Successfully joined room #' + firstWaitingRoom.ID);
         } else {
-            console.log('error joining the room');
+            console.log('Error joining the room');
         }
     } else { // no waiting room : create one
         var newGameRoom = createGameRoom();
-        if (newGameRoom.join(player.desktopSocket, player.mobileSocket)) {
+        if (newGameRoom.join(player)) {
+
             waitingRooms.push(newGameRoom);
-            console.log('Successfully joined new room #' + newGameRoom.gameRoomID);
+            
+            console.log('Successfully joined new room #' + newGameRoom.ID);
+        } else {
+            console.log('Error joining the room');
         }
+    }
+}
+
+function onPlayerDisconnect(gameRoomID, hostDisconnected) { // todo: when both players disconnect bug to fix
+    console.log('Player disconnected from room #' + gameRoomID); 
+    var remainingPlayer;
+    
+    if (gameRooms[gameRoomID] && gameRooms[gameRoomID].isReady) {
+        remainingPlayer = hostDisconnected ? gameRooms[gameRoomID].players.guestPlayer : gameRooms[gameRoomID].players.hostPlayer;
+    }
+    else {
+        _.remove(waitingRooms, function(room) {
+            return room.ID === gameRoomID;
+        });
+    }
+
+    gameRooms[gameRoomID] = null;
+
+    if (remainingPlayer) {
+        findGameRoom(remainingPlayer);
     }
 }
 
@@ -57,5 +85,6 @@ function createGameRoom() {
 
 module.exports = {
     init: init,
-    findGameRoom: findGameRoom
+    findGameRoom: findGameRoom, 
+    onPlayerDisconnect: onPlayerDisconnect
 };

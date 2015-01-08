@@ -2,61 +2,67 @@
 =            GameRoom            =
 ================================*/
 
-function GameRoom(gameRoomID) {
-    this.gameRoomID = gameRoomID;
-    this.players = {
-        hostPlayer: null,
-        guestPlayer: null
-    };
+function GameRoom(ID) {
+    this.ID = ID;
+    this.players = [{
+            hostPlayer: null,
+            guestPlayer: null
+        }];
     this.isReady = false;
 }
 
-GameRoom.prototype.join = function(desktopSocket, mobileSocket) {
+var p = GameRoom.prototype;
 
-    console.log('a player try to join game room #' + this.gameRoomID);
+p.join = function(player, gameRoomsManager) {
 
-    if (this.players.guestPlayer) {
+    //console.log('a player try to join game room #' + this.ID);
+
+    if (this.isReady) {
         return false;
     } else if (this.players.hostPlayer) {
-        console.log('player joined as guest !');
-        this.players.guestPlayer = {
-            desktop: desktopSocket,
-            mobile: mobileSocket || null
-        };
-        this.players.hostPlayer.desktop.emit('game joined', {
-            gameRoomID: this.gameRoomID,
+        //console.log('player joined as guest !');
+        player.isHost = false;
+        this.players.guestPlayer = player;
+        this.players.guestPlayer.deviceConnection.desktop.emit('game joined', {
+            gameRoomID: this.ID,
             isHost: false
         });
 
+        this.players.guestPlayer.opponent = this.players.hostPlayer;
+        this.players.hostPlayer.opponent  = this.players.guestPlayer;
+
     } else {
-        console.log('player joined as host !');
-        this.players.hostPlayer = {
-            desktop: desktopSocket,
-            mobile: mobileSocket || null
-        };
-        this.players.hostPlayer.desktop.emit('game joined', {
-            gameRoomID: this.gameRoomID,
+        //console.log('player joined as host !');
+        player.isHost = true;
+        this.players.hostPlayer = player;
+        this.players.hostPlayer.deviceConnection.desktop.emit('game joined', {
+            gameRoomID: this.ID,
             isHost: true
         });
     }
 
+    player.onRoomJoin(this);
+
     if (this.players.guestPlayer) {
         this.isReady = true;
-        this.players.hostPlayer.desktop.emit('game ready');
-        this.players.guestPlayer.desktop.emit('game ready');
-        this.bindEvents();
-        this.startGame();
+        this.onGameReady();
     }
-
 
     return true;
 };
 
-GameRoom.prototype.startGame = function() {
+p.onGameReady = function() {
+    this.players.hostPlayer.deviceConnection.desktop.emit('game ready');
+    this.players.guestPlayer.deviceConnection.desktop.emit('game ready');
+    this.bindEvents();
+    this.startGame();
+};
+
+p.startGame = function() {
 
 };
 
-GameRoom.prototype.bindEvents = function() {
+p.bindEvents = function() {
     // var self = this;
     // this.mobile.on('mobileTop', function() {
     //     self.computer.emit('top');
@@ -68,5 +74,6 @@ GameRoom.prototype.bindEvents = function() {
     //     self.computer.emit('stop');
     // });
 };
+
 
 module.exports = GameRoom;
