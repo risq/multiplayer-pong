@@ -11,8 +11,8 @@ G.physicsEngine = (function() {
    		wallsBounds = new PIXI.Rectangle(
 			safetyGapSize * 0.5 * currentRatio, 
 			safetyGapSize * 0.5 * currentRatio, 
-			(G.stageManager.getConfig().baseSceneWidth - safetyGapSize * 0.5) * currentRatio,
-			(G.stageManager.getConfig().baseSceneHeight - safetyGapSize * 0.5) * currentRatio);
+			(G.config.baseSceneWidth - safetyGapSize * 0.5) * currentRatio,
+			(G.config.baseSceneHeight - safetyGapSize * 0.5) * currentRatio);
     }
 
     function update(delta) {
@@ -32,7 +32,9 @@ G.physicsEngine = (function() {
 	}
 
 	function updateBall(ball, index) {
-		checkBallCollision(ball);
+		if (!ball.out) {
+			checkBallCollision(ball);
+		}
 		updateObjectPos(ball);
 	}
 
@@ -67,18 +69,33 @@ G.physicsEngine = (function() {
 		if (bounds.x + ball.vel.x * currentDelta <= wallsBounds.x || 
 			bounds.x <= wallsBounds.x) {
 
-			//DEBUG console.log('onBallCollideLeft', ball.x, ball.y);
-			ball.x = wallsBounds.x + safetyGapSize;
-			//DEBUG console.log('new values:', ball.x, ball.y);
-			onBallCollideLeft(ball);
+			if (bounds.y + bounds.height > G.racketsManager.getLeftRacketBoundsTopY() &&
+				bounds.y < G.racketsManager.getLeftRacketBoundsBottomY()) {
+
+				//DEBUG console.log('onBallCollideLeft', ball.x, ball.y);
+				ball.x = wallsBounds.x + safetyGapSize;
+				//DEBUG console.log('new values:', ball.x, ball.y);
+				onBallCollideLeft(ball);
+			}
+			else {
+				G.ballsManager.onBallOut(ball);
+			}
+
 		}
 		else if (bounds.x + bounds.width + ball.vel.x * currentDelta >= wallsBounds.x + wallsBounds.width ||
 				 bounds.x + bounds.width >= wallsBounds.x + wallsBounds.width) {
 
-			//DEBUG console.log('onBallCollideRight', ball.x, ball.y);
-			ball.x = wallsBounds.x + (wallsBounds.width * 1/currentRatio) - ball.radius - safetyGapSize;
-			//DEBUG console.log('new values:', ball.x, ball.y);
-			onBallCollideRight(ball);
+			if (bounds.y + bounds.height > G.racketsManager.getRightRacketBoundsTopY() &&
+				bounds.y < G.racketsManager.getRightRacketBoundsBottomY()) {
+
+				//DEBUG console.log('onBallCollideRight', ball.x, ball.y);
+				ball.x = wallsBounds.x + (wallsBounds.width * 1/currentRatio) - ball.radius - safetyGapSize;
+				//DEBUG console.log('new values:', ball.x, ball.y);
+				onBallCollideRight(ball);
+			}
+			else {
+				G.ballsManager.onBallOut(ball);
+			}
 		}
 	}
 
@@ -103,8 +120,8 @@ G.physicsEngine = (function() {
 		currentRatio = ratio;
 
 		if (wallsBounds) {
-			wallsBounds.width  = G.stageManager.getConfig().baseSceneWidth * currentRatio;
-			wallsBounds.height = G.stageManager.getConfig().baseSceneHeight * currentRatio;
+			wallsBounds.width  = G.config.baseSceneWidth * currentRatio;
+			wallsBounds.height = G.config.baseSceneHeight * currentRatio;
 		}
 	}
 

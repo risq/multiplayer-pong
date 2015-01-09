@@ -12,17 +12,11 @@ G.stageManager = (function() {
         colorStepFilter,
         checkDeltaInterval,
         startTime,
-        inactive = false,
-
-        config = {
-            baseSceneWidth: 1440,
-            baseSceneHeight: 900,
-            checkDeltaIntervalTime: 500
-        };
+        inactive = false;
 
     function init() {
         // create an new instance of a pixi stage
-        stage = new PIXI.Stage(0x000000);
+        stage = new PIXI.Stage(0x222222);
         
         // create a renderer instance and append the view 
         renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, null, false, true);
@@ -36,11 +30,11 @@ G.stageManager = (function() {
 
         stats = new Stats();
         stats.domElement.style.position = 'absolute';
-        stats.domElement.style.left = '0px';
+        stats.domElement.style.right = '0px';
         stats.domElement.style.top = '0px';
         document.body.appendChild(stats.domElement);
 
-        scene = new Scene(config.baseSceneWidth, config.baseSceneHeight);
+        scene = new Scene(G.config.baseSceneWidth, G.config.baseSceneHeight);
         stage.addChild(scene);
         updateGameSize();
         
@@ -48,10 +42,11 @@ G.stageManager = (function() {
 
 
         G.hudManager.init();
+        G.racketsManager.init();
         G.physicsEngine.init();
 
         startTime = G.appManager.getStartTime();
-        checkDeltaInterval = setInterval(checkDelta, config.checkDeltaIntervalTime);
+        checkDeltaInterval = setInterval(checkDelta, G.config.checkDeltaIntervalTime);
         update();
     }
     
@@ -73,7 +68,7 @@ G.stageManager = (function() {
         var tempTime = new Date() - startTime;
         // console.log('tempTime', tempTime);
         // console.log('lastTime', lastTime);
-        if(tempTime - lastTime >= config.checkDeltaIntervalTime) {
+        if(tempTime - lastTime >= G.config.checkDeltaIntervalTime) {
             if (!inactive) {
                 inactive = true;
                 console.log('player is inactive');
@@ -88,17 +83,17 @@ G.stageManager = (function() {
     function updateGameSize() {
         renderer.resize(window.innerWidth, window.innerHeight);
 
-        var ratioW = window.innerWidth  / config.baseSceneWidth;
-        var ratioH = window.innerHeight / config.baseSceneHeight;
+        var ratioW = window.innerWidth  / G.config.baseSceneWidth;
+        var ratioH = window.innerHeight / G.config.baseSceneHeight;
 
         if (ratioW < ratioH) {
             ratio = ratioW;
             dec.x = 0;
-            dec.y = (window.innerHeight - config.baseSceneHeight * ratio) / 2;
+            dec.y = (window.innerHeight - G.config.baseSceneHeight * ratio) / 2;
         }
         else {
             ratio = ratioH;
-            dec.x = (window.innerWidth - config.baseSceneWidth * ratio) / 2;
+            dec.x = (window.innerWidth - G.config.baseSceneWidth * ratio) / 2;
             dec.y = 0;
         }
 
@@ -121,15 +116,10 @@ G.stageManager = (function() {
         return dec;
     }
 
-    function getConfig() {
-        return config;
-    }
-
     return {
         init: init,
         getScene: getScene,
         getStage: getStage,
-        getDec: getDec,
-        getConfig: getConfig
+        getDec: getDec
     };
 })();

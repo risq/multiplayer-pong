@@ -1,8 +1,8 @@
 Hud = function() {
     PIXI.DisplayObjectContainer.call( this );
     this.infos = new PIXI.Text('', {font: 'bold 40px Arial'});
-    this.infos.x = 100;
-    this.infos.y = 100;
+    this.infos.x = 10;
+    this.infos.y = 10;
     this.addChild(this.infos);
 
     this.debug1 = new PIXI.Text('');

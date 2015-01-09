@@ -3,8 +3,7 @@ Ball = function(pos, radius, color) {
     this.radius = radius || 28;
     this.color  = color  || parseInt(Please.make_color().slice(1), 16);
     this.vel = new Vector2(0, 0);
-
-    console.log();
+    this.out = false;
 
 	var graphics = new PIXI.Graphics();
 	graphics.beginFill(this.color);

@@ -21,8 +21,8 @@ G.ballsManager = (function() {
         turns = turns || 1;
         angle = angle === undefined ? Math.PI/number : angle;
     	remaining = remaining === undefined ? number : remaining;
-	    createBall(pos, new Vector2(vel * Math.cos(angle), vel * Math.sin(angle)));
-    	if (remaining > 1) {
+	    createBall(pos, new Vector2(vel * Math.cos(angle + (0.5 - Math.random()) * Math.PI/6), vel * Math.sin(angle + (0.5 - Math.random()) * Math.PI/6)));
+    	if (remaining > 1 && G.appManager.getState() === 'ready') {
 	    	setTimeout(function() {
 	    		createBalls(number, pos, vel, interval, turns, angle + 2 * turns * Math.PI/number, remaining - 1);
 	    	}, interval);
@@ -31,10 +31,19 @@ G.ballsManager = (function() {
 
     function removeAllBalls() {
         balls.forEach(removeBall);
+        balls = [];
     }
 
     function removeBall(ball) {
         G.stageManager.getScene().removeChild(ball);
+        ball = null;
+    }
+
+    function onBallOut(ball) {
+        ball.out = true;
+        setTimeout(function() {
+            removeBall(ball);
+        }, 2000);
     }
 
     function getBalls() {
@@ -47,6 +56,7 @@ G.ballsManager = (function() {
 		createBalls: createBalls,
         removeAllBalls: removeAllBalls,
         removeBall: removeBall,
-		getBalls: getBalls
+		getBalls: getBalls,
+        onBallOut: onBallOut
 	};
 })();

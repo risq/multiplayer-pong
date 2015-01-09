@@ -1,5 +1,13 @@
+G.config = {
+    baseSceneWidth: 1440,
+    baseSceneHeight: 900,
+    checkDeltaIntervalTime: 500
+};
+
 G.appManager = (function() {
+
     var startTime = new Date();
+    var state = 'waiting';
     
     function init() {
     	G.socketsManager.init(initStage);
@@ -15,18 +23,25 @@ G.appManager = (function() {
 
     function onGameReady() {
         console.log('game ready');
-        G.ballsManager.createBalls(16, null, 940, 50, 1);
+        state = 'ready';
+        G.ballsManager.createBalls(80, null, 500, 10, 4);
     }
 
     function onOpponentDisconnect() {
+        state = 'waiting';
         G.ballsManager.removeAllBalls();
+    }
+
+    function getState() {
+        return state;
     }
 
     return {
     	init: init,
         getStartTime: getStartTime,
         onGameReady: onGameReady,
-        onOpponentDisconnect: onOpponentDisconnect
+        onOpponentDisconnect: onOpponentDisconnect,
+        getState: getState
     };
 
 })();
