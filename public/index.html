@@ -10,7 +10,10 @@
         <link rel="stylesheet" href="css/normalize.min.css">
         <link rel="stylesheet" href="css/main.css">
 
-        <script src="js/vendor/modernizr-2.6.2.min.js"></script>
+        <script src="vendor/modernizr-2.6.2.min.js"></script>
+        <script>
+            var G = window.G || {};
+        </script>
     </head>
     <body>
 
@@ -18,19 +21,33 @@
 			<div id="qr-scan"></div>
 			<div class="mobile-url"></div>
 		</div>
-		<div id="container-info">
-            <div id="game-state"></div>
-            <hr>
-            <i>YOU :</i>
-            <span id="player-control-data"></span>
-            <hr>
-            <i>HIM :</i>
-			<span id="opponent-control-data"></span>
-		</div>
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.1.min.js"><\/script>')</script>
 
-		<script src="js/plugins.js"></script>
+        <div id="game">
+            
+        </div>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="vendor/jquery.qrcode.js"></script>
+        <script src="vendor/lodash.min.js"></script>
+        <script src="vendor/pixi.js"></script>
+        <script src="vendor/pixi-particles.min.js"></script>
+        <script src="vendor/stats.min.js"></script>
+        <script src="vendor/please.min.js"></script>
+
+        <script src="js/class/Vector2.js"></script>
+        <script src="js/class/Ball.js"></script>
+        <script src="js/class/Racket.js"></script>
+        <script src="js/class/Scene.js"></script>
+        <script src="js/class/Hud.js"></script>
+
+        <script src="js/stageManager.js"></script>
+        <script src="js/socketsManager.js"></script>
+        <script src="js/racketsManager.js"></script>
+        <script src="js/hudManager.js"></script>
+        <script src="js/physicsEngine.js"></script>
+        <script src="js/ballsManager.js"></script>
+        <script src="js/appManager.js"></script>
+
         <script src="js/main.js"></script>
     </body>
 </html>

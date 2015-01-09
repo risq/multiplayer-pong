@@ -10,11 +10,15 @@ G.appManager = (function() {
     	ratio = 1,
     	pixelateFilter,
     	colorStepFilter,
+    	checkDeltaInterval,
+    	startTime,
+    	inactive = false,
 
     	config = {
-    	baseSceneWidth: 1440,
-    	baseSceneHeight: 900
-    };
+	    	baseSceneWidth: 1440,
+	    	baseSceneHeight: 900,
+	    	checkDeltaIntervalTime: 500
+	    };
 
 	function init() {
 		// create an new instance of a pixi stage
@@ -44,8 +48,11 @@ G.appManager = (function() {
 
 	    G.physicsEngine.init();
 
-	    G.ballsManager.createBalls(48, scene.getCenter(), 75, 2);
+	    G.ballsManager.createBalls(48, scene.getCenter(), 940, 50, 2);
 
+
+	    startTime = new Date();
+	    checkDeltaInterval = setInterval(checkDelta, config.checkDeltaIntervalTime);
 	    update();
 	}
     
@@ -55,15 +62,26 @@ G.appManager = (function() {
     
 	function update(time) {
 	    requestAnimFrame( update );
-	    updateDelta(time);
+	    delta = (time - lastTime) / 1000;
+		lastTime = time;
 	    G.physicsEngine.update(delta);
 	    stats.update();
 	    renderer.render(stage);
 	}
 
-	function updateDelta(time) {
-		delta = (time - lastTime) / 1000;
-		lastTime = time;
+	// Manually update physics if requestAnimFrame not available (if tab inactive)
+	function checkDelta() {
+		var tempTime = new Date() - startTime;
+		if(tempTime - lastTime >= config.checkDeltaIntervalTime) {
+			if (!inactive) {
+				inactive = true;
+				console.log('player is inactive');
+			}
+		}
+		else if (inactive) {
+			inactive = false;
+			console.log('player came back');
+		}
 	}
 
 	function updateGameSize() {

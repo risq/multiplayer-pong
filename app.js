@@ -16,7 +16,7 @@ server.listen(config.port, config.url);
 try {
     deviceConnectionsManager.init(io);
     deviceConnectionsManager.onPlayerJoin(function (deviceConnection) {
-        global.gameRoomsManager.findGameRoom(new Player(deviceConnection));
+        gameRoomsManager.findGameRoom(new Player(deviceConnection));
     });
     console.log('[server started on port ' + config.port + ']');
 } catch (err) {
