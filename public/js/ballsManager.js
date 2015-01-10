@@ -10,11 +10,13 @@ G.ballsManager = (function() {
         ballData.ID = ballData.ID || getID();
         if (!balls[ballData.ID]) {
         	var newBall = new Ball(ballData.ID, ballData.pos, ballData.color, ballData.radius);
+            // console.log('created ball #' + newBall.ID, newBall, balls[ballData.ID])
             G.physicsEngine.setVel(newBall, ballData.vel);
             G.syncManager.onCreateBall(newBall);
             G.stageManager.getScene().addChild(newBall);
+            balls[ballData.ID] = newBall;
     		setTimeout(function() {
-        		balls[ballData.ID] = newBall;
+        		newBall.enablePhysics();
     		}, 50);
         }
     }

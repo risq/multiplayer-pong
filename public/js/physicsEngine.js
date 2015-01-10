@@ -10,9 +10,9 @@ G.physicsEngine = (function() {
 
     function init() {
    		wallsBounds = new PIXI.Rectangle(
-			racketsMargin * currentRatio, 
+			0, 
 			safetyGapSize * 0.5 * currentRatio, 
-			(G.config.baseSceneWidth -  2 * racketsMargin) * currentRatio,
+			(G.config.baseSceneWidth) * currentRatio,
 			(G.config.baseSceneHeight - safetyGapSize * 0.5) * currentRatio);
     }
 
@@ -33,7 +33,7 @@ G.physicsEngine = (function() {
 	}
 
 	function updateBall(ball, index) {
-		if (ball) {
+		if (ball && ball.physics) {
 			checkBallCollision(ball)
 			updateObjectPos(ball);
 		}
@@ -48,50 +48,51 @@ G.physicsEngine = (function() {
 		var bounds = ball.getBounds();
 		bounds.localX = bounds.x - G.stageManager.getDec().x;
 		bounds.localY = bounds.y - G.stageManager.getDec().y;
-		// bounds.scaledWidth  = bounds.width  * currentRatio;
-		// bounds.scaledHeight = bounds.height * currentRatio;
 
+
+		// Test top collision
 		if (bounds.localY + ball.vel.y * currentDelta <= wallsBounds.y || 
 			bounds.localY <= wallsBounds.y) {
 
-			//DEBUG console.log('onBallCollideTop', ball.x, ball.y);
 			ball.y = wallsBounds.y + safetyGapSize / currentRatio;
-			//DEBUG console.log('new values:', ball.x, ball.y);
 			onBallCollideTop(ball);
 		}
+
+		// Test bottom collision
 		else if (bounds.localY + bounds.height + ball.vel.y * currentDelta >= wallsBounds.y + wallsBounds.height || 
 				 bounds.localY + bounds.height >= wallsBounds.y + wallsBounds.height) {
 
-			//DEBUG console.log('onBallCollideBottom', ball.x, ball.y);
-			ball.y = wallsBounds.y + (wallsBounds.height * 1/currentRatio) - ball.radius - safetyGapSize / currentRatio;
-			//DEBUG console.log('new values:', ball.x, ball.y);
+			ball.y = wallsBounds.y + (wallsBounds.height - ball.radius - safetyGapSize) / currentRatio;
 			onBallCollideBottom(ball);
 		}
+
+		// If ball is not out of the game
 		if (!ball.out) {
+
+			// Test left collision
 			if (bounds.x + ball.vel.x * currentDelta < G.racketsManager.getLeftRacketBoundsRightX() || 
 				bounds.x <= G.racketsManager.getLeftRacketBoundsRightX()) {
 
+				// If the ball touches left racket
 				if (bounds.y + bounds.height > G.racketsManager.getLeftRacketBoundsTopY() &&
 					bounds.y < G.racketsManager.getLeftRacketBoundsBottomY()) {
 
 					ball.x = (G.racketsManager.getLeftRacketBoundsRightX()- currentDec.x)  / currentRatio;
-					//DEBUG console.log('new values:', ball.x, ball.y);
 					onBallCollideLeft(ball);
 				}
 				else {
 					G.ballsManager.onBallOut(ball);
 				}
-
 			}
+			// Test right collision
 			else if (bounds.x + bounds.width + ball.vel.x * currentDelta > G.racketsManager.getRightRacketBoundsLeftX() ||
 					 bounds.x + bounds.width >= G.racketsManager.getRightRacketBoundsLeftX()) {
 
+				// If the ball touches right racket
 				if (bounds.y + bounds.height > G.racketsManager.getRightRacketBoundsTopY() &&
 					bounds.y < G.racketsManager.getRightRacketBoundsBottomY()) {
 
-					// console.log('onBallCollideRight', ball.x, ball.y);
 					ball.x = (G.racketsManager.getRightRacketBoundsLeftX() - currentDec.x - bounds.width) / currentRatio;
-					// console.log('new values:', ball.x, ball.y);
 					onBallCollideRight(ball);
 				}
 				else {
@@ -99,7 +100,11 @@ G.physicsEngine = (function() {
 				}
 			}
 		}
+
+		// If ball is out, test collision with top & bottom of rackets
 		else {
+
+			// Left racket
 			if (bounds.x + ball.vel.x * currentDelta <= G.racketsManager.getLeftRacketBoundsRightX() &&
 				bounds.x + bounds.width + ball.vel.x * currentDelta >= G.racketsManager.getLeftRacketBoundsLeftX() &&
 				bounds.y + bounds.height > G.racketsManager.getRightRacketBoundsTopY() && 
@@ -112,6 +117,8 @@ G.physicsEngine = (function() {
 					onBallCollideBottom(ball);
 				}
 			}
+
+			// Right racket
 			else if (bounds.x + ball.vel.x * currentDelta <= G.racketsManager.getRightRacketBoundsRightX() &&
 				bounds.x + bounds.width + ball.vel.x * currentDelta >= G.racketsManager.getRightRacketBoundsLeftX() &&
 				bounds.y + bounds.height > G.racketsManager.getRightRacketBoundsTopY() && 
@@ -156,9 +163,7 @@ G.physicsEngine = (function() {
 		currentRatio = ratio;
 
 		if (wallsBounds) {
-			wallsBounds.x = racketsMargin * currentRatio;
 			wallsBounds.y = safetyGapSize * 0.5 * currentRatio;
-			wallsBounds.width  = G.config.baseSceneWidth * currentRatio;
 			wallsBounds.height = G.config.baseSceneHeight * currentRatio;
 		}
 	}

@@ -6,20 +6,27 @@ Ball = function(ID, pos, color, radius) {
     this.vel = new Vector2(0, 0);
     this.out = false;
 
+    this.physics = false;
+
 	var graphics = new PIXI.Graphics();
 	graphics.beginFill(this.color);
 	graphics.drawRect(0, 0, this.radius, this.radius);
-	this.addChild(graphics);
+    this.addChild(graphics);
 
     this.x = pos ? pos.x : 0;
     this.y = pos ? pos.y : 0;
+    
 };
 
 Ball.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 Ball.prototype.constructor = Ball;
 
-Ball.prototype.init = function() {
-	
+Ball.prototype.enablePhysics = function() {
+    this.physics = true;
+};
+
+Ball.prototype.disablePhysics = function() {
+	this.physics = false;
 };
 
 
