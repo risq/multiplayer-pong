@@ -24,7 +24,7 @@ G.appManager = (function() {
     function onGameReady() {
         console.log('game ready');
         state = 'ready';
-        G.ballsManager.createBalls(80, null, 500, 10, 4);
+        G.ballsManager.createBalls(76, null, 500, 10, 4);
     }
 
     function onOpponentDisconnect() {

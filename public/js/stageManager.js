@@ -50,10 +50,6 @@ G.stageManager = (function() {
         update();
     }
     
-    function onAssetsLoaded() {
-                
-    }
-    
     function update(time) {
         requestAnimFrame( update );
         delta = (time - lastTime) / 1000;

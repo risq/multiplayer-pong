@@ -10,7 +10,7 @@ var io,
 
 
 // Callbacks
-var onPlayerJoinCallback = function() {};
+var onConnectionReadyCallback = function() {};
 
 function init(socketio) {
     io = socketio;
@@ -24,6 +24,10 @@ function init(socketio) {
 
         socket.on('joinHosting', function(data) {
             newMobileConnection(socket, data);
+        });
+
+        socket.on('desktopOnly', function(connectionID) {
+            setDesktopOnlyConnection(connectionID);
         });
     });
 }
@@ -46,8 +50,9 @@ function newDesktopConnection(socket) {
         socket.join(connectionID);
 
         //we create new DeviceConnection
-        deviceConnections[connectionID] = new DeviceConnection(connectionID);
+        deviceConnections[connectionID] = new DeviceConnection(connectionID, onConnectionReadyCallback);
         deviceConnections[connectionID].setDesktop(socket);
+
     } else {
         this.newDesktopConnection(socket);
     }
@@ -62,14 +67,20 @@ function newMobileConnection(socket, data) {
     if (room !== undefined) {
         socket.join(connectionID);
         deviceConnections[connectionID].setMobile(socket);
-        onPlayerJoinCallback(deviceConnections[connectionID]);
     } else {
         //socket.emit('error', {errorType: -1, message: "Aucune room correspondante"});
     }
 }
 
+function setDesktopOnlyConnection(connectionID) {
+    console.log('set desktopOnly ', connectionID);
+    if (deviceConnections[connectionID]) {
+        deviceConnections[connectionID].setDesktopOnly();
+    }
+}
+
 function onPlayerJoin(callback) {
-    onPlayerJoinCallback = callback;
+    onConnectionReadyCallback = callback;
 }
 
 module.exports = {

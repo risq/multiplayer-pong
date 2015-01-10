@@ -29,6 +29,17 @@ Scene.prototype.getCenter = function() {
 	return new Vector2(this.baseWidth / 2, this.baseHeight / 2);
 };
 
+Scene.prototype.clearObjectsOfType = function(type) {
+	console.log('removing all objects of type ' + type);
+	var objects = _.filter(this.children, function(object) { 
+		return object instanceof type;
+	});
+
+	objects.forEach(function(object) {
+		this.removeChild(object);
+	}.bind(this));
+
+}
 
 
 

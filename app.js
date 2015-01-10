@@ -4,7 +4,7 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
-var deviceConnectionsManager = require('./src/deviceConnectionsManager');
+global.deviceConnectionsManager = require('./src/deviceConnectionsManager');
 global.gameRoomsManager = require('./src/gameRoomsManager');
 var Player = require('./src/class/Player');
 

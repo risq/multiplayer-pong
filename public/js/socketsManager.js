@@ -1,6 +1,7 @@
 G.socketsManager = (function() {
     
     var socket,
+        connectionID,
 	    onReady = function() {};
 
     function init(onReadyCallback) {
@@ -14,6 +15,7 @@ G.socketsManager = (function() {
                     initSocket(address);
                 });
         });
+
     }
 
     function initSocket(address) {
@@ -22,8 +24,6 @@ G.socketsManager = (function() {
 
         sendHostRequest();
         bindSocketEvents();
-
-
     }
 
     function sendHostRequest() {
@@ -32,12 +32,13 @@ G.socketsManager = (function() {
 
     function bindSocketEvents() {
         socket.on('newConnectionID', onNewConnectionID);
-        socket.on('newConnection', onNewBridge);
+        socket.on('connectionReady', onConnectionReady);
     }
-
 
     function onNewConnectionID(data) {
         socket.removeListener('newConnectionID');
+
+        connectionID = data.connectionID;
         
         //display text + qrcode
         var $container = $('#info-connection').show(),
@@ -48,18 +49,24 @@ G.socketsManager = (function() {
 
         $url.text(urlMobile);
         $qrcode.qrcode({width:'200', height:'200', text:urlMobile});
+
+        $('#desktop-only').on('click', onClickDesktopOnly);
     }
 
-    function onNewBridge() {
+    function onClickDesktopOnly() {
+        socket.emit('desktopOnly', connectionID);
+    }
+
+    function onConnectionReady() {
 
         $('#info-connection').hide();
-        socket.removeListener('newConnection');
+        socket.removeListener('connnectionReady');
 
         initApp();
+        onReady();
     }
 
     function initApp () {
-        onReady();
 
         var $containerInfo = $('#container-info').show();
         var $gameState = $('#game-state');
