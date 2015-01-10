@@ -5,13 +5,18 @@ G.syncManager = (function() {
     }
 
     function onSync(data) {
+        console.log('sync', data);
         if (data.event === 'createBall') {
-            console.log('createBall', data);
             G.ballsManager.createBall(data);
         }
         else if (data.event === 'updateBall') {
-            console.log('updateBall', data);
             G.ballsManager.updateBall(data);
+        }
+        else if (data.event === 'setBallOut') {
+            var ball = G.ballsManager.getBall(data.ID);
+            if (ball) {
+                G.ballsManager.setBallOut(ball);
+            }
         }
     }
 
@@ -48,11 +53,20 @@ G.syncManager = (function() {
         G.socketsManager.emit('sync', data);
     }
 
+    function onBallOut(ball) {
+        var data = {
+            event: 'setBallOut',
+            ID: ball.ID
+        }
+        G.socketsManager.emit('sync', data);
+    }
+
     return {
     	init: init,
         onSync: onSync,
         onCreateBall: onCreateBall,
-        onUpdateBall: onUpdateBall
+        onUpdateBall: onUpdateBall,
+        onBallOut: onBallOut
     };
 
 })();

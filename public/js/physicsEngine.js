@@ -107,8 +107,8 @@ G.physicsEngine = (function() {
 			// Left racket
 			if (bounds.x + ball.vel.x * currentDelta <= G.racketsManager.getLeftRacketBoundsRightX() &&
 				bounds.x + bounds.width + ball.vel.x * currentDelta >= G.racketsManager.getLeftRacketBoundsLeftX() &&
-				bounds.y + bounds.height > G.racketsManager.getRightRacketBoundsTopY() && 
-				bounds.y < G.racketsManager.getRightRacketBoundsBottomY()) {
+				bounds.y + bounds.height > G.racketsManager.getLeftRacketBoundsTopY() && 
+				bounds.y < G.racketsManager.getLeftRacketBoundsBottomY()) {
 
 				if (ball.vel.y > 0) {
 					onBallCollideTop(ball);
@@ -134,9 +134,6 @@ G.physicsEngine = (function() {
 		}
 	}
 
-	function checkBallOutCollision(ball) {
-
-	}
 
 	function onBallCollideTop(ball) {
 		ball.vel.y = -ball.vel.y;

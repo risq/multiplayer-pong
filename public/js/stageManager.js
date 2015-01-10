@@ -12,7 +12,8 @@ G.stageManager = (function() {
         colorStepFilter,
         checkDeltaInterval,
         startTime,
-        inactive = false;
+        inactive = false,
+        isPaused = false;
 
     function init() {
         // create an new instance of a pixi stage
@@ -54,8 +55,8 @@ G.stageManager = (function() {
         requestAnimFrame( update );
         delta = (time - lastTime) / 1000;
         lastTime = time;
-        G.physicsEngine.update(delta);
         stats.update();
+        G.physicsEngine.update(delta);
         renderer.render(stage);
     }
 

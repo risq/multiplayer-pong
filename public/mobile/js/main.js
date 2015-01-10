@@ -57,9 +57,9 @@ var MobileController = {
 
 		this.socket.emit('joinHosting', data);
 
-		this.socket.on('newConnection', function() {
+		this.socket.on('connectionReady', function() {
 			self.bindActionController();
-			self.socket.off('newConnection');
+			self.socket.off('connectionReady');
 		});
 	},
 
@@ -70,21 +70,17 @@ var MobileController = {
 
 		$('#button-top').on('touchstart mousedown', function() {
 			self.socket.emit('mobileTop');
-			console.log('emitting ' + mobileTop);
 		})
 		.on('touchend mouseup', function(){
 			self.socket.emit('mobileStop');
-			console.log('emitting ' + mobileStop);
 		});
 
 
 		$('#button-bottom').on('touchstart mousedown', function() {
 			self.socket.emit('mobileBottom');
-			console.log('emitting ' + mobileBottom);
 		})
 		.on('touchend mouseup', function(){
 			self.socket.emit('mobileStop');
-			console.log('emitting ' + mobileStop);
 		});
 	},
 

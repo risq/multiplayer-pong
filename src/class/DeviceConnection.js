@@ -45,6 +45,7 @@ p.sendConnectionReady = function() {
 p.initEvents = function(player) {
     this.desktop.on('sync', player.onSync.bind(player));
     this.desktop.on('disconnect', player.onDisconnect.bind(player));
+
     if (this.mobile) {
         this.initMobileEvents(player);
     }

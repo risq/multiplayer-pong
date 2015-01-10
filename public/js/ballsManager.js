@@ -67,6 +67,13 @@ G.ballsManager = (function() {
     }
 
     function onBallOut(ball) {
+        if (G.appManager.getIsHost()) {
+            G.syncManager.onBallOut(ball);
+            setBallOut(ball);
+        }
+    }
+
+    function setBallOut(ball) {
         ball.out = true;
         setTimeout(function() {
             removeBall(ball);
@@ -82,6 +89,10 @@ G.ballsManager = (function() {
     	return balls;
     }
 
+    function getBall(ID) {
+        return balls[ID] || null;
+    }
+
 	return {
 		init: init,
 		createBall: createBall,
@@ -91,6 +102,8 @@ G.ballsManager = (function() {
         removeBall: removeBall,
         getID: getID,
 		getBalls: getBalls,
-        onBallOut: onBallOut
+        getBall: getBall,
+        onBallOut: onBallOut,
+        setBallOut: setBallOut
 	};
 })();

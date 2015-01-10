@@ -42,12 +42,17 @@ G.appManager = (function() {
         return state;
     }
 
+    function getIsHost() {
+        return isHost;
+    }
+
     return {
     	init: init,
         getStartTime: getStartTime,
         onGameReady: onGameReady,
         onOpponentDisconnect: onOpponentDisconnect,
-        getState: getState
+        getState: getState,
+        getIsHost: getIsHost
     };
 
 })();
