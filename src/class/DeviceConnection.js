@@ -43,13 +43,14 @@ p.sendConnectionReady = function() {
  * Active events for the two socket
  */
 p.initEvents = function(player) {
+    this.desktop.on('sync', player.onSync.bind(player));
     this.desktop.on('disconnect', player.onDisconnect.bind(player));
     if (this.mobile) {
-        this.initMobileEvents();
+        this.initMobileEvents(player);
     }
 };
 
-p.initMobileEvents = function() {
+p.initMobileEvents = function(player) {
     this.mobile.on('mobileTop', player.onMobileTop.bind(player));
     this.mobile.on('mobileBottom', player.onMobileBottom.bind(player));
     this.mobile.on('mobileStop', player.onMobileStop.bind(player));

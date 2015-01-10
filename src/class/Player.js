@@ -16,23 +16,29 @@ p.onRoomJoin = function(room) {
     this.deviceConnection.initEvents(this);
 };
 
+p.onSync = function(data) {
+    if (this.isHost) {
+        this.emitOpponent('sync', data);
+    }
+};
+
 p.onMobileTop = function() {
-    this.emmit('mobile top');
-    this.emmitOpponent('opponent top');
+    this.emit('mobile top');
+    this.emitOpponent('opponent top');
 };
 
 p.onMobileBottom = function() {
-    this.emmit('mobile bottom');
-    this.emmitOpponent('opponent bottom');
+    this.emit('mobile bottom');
+    this.emitOpponent('opponent bottom');
 };
 
 p.onMobileStop = function() {
-    this.emmit('mobile stop');
-    this.emmitOpponent('opponent stop');
+    this.emit('mobile stop');
+    this.emitOpponent('opponent stop');
 };
 
 p.onDisconnect = function() {
-    this.emmitOpponent('opponent disconnect');
+    this.emitOpponent('opponent disconnect');
 
     setTimeout(function () {
         gameRoomsManager.onPlayerDisconnect(this.room.ID, this.isHost);
@@ -40,11 +46,11 @@ p.onDisconnect = function() {
     
 };
 
-p.emmit = function(message, data) {
+p.emit = function(message, data) {
     this.deviceConnection.desktop.emit(message, data);
 };
 
-p.emmitOpponent = function(message, data) {
+p.emitOpponent = function(message, data) {
     if (this.opponent) {
         this.opponent.deviceConnection.desktop.emit(message, data);
     }

@@ -30,7 +30,6 @@ Scene.prototype.getCenter = function() {
 };
 
 Scene.prototype.clearObjectsOfType = function(type) {
-	console.log('removing all objects of type ' + type);
 	var objects = _.filter(this.children, function(object) { 
 		return object instanceof type;
 	});

@@ -33,8 +33,10 @@ G.physicsEngine = (function() {
 	}
 
 	function updateBall(ball, index) {
-		checkBallCollision(ball)
-		updateObjectPos(ball);
+		if (ball) {
+			checkBallCollision(ball)
+			updateObjectPos(ball);
+		}
 	}
 
 	function updateObjectPos(object) {
@@ -98,8 +100,8 @@ G.physicsEngine = (function() {
 			}
 		}
 		else {
-			if (bounds.localX + ball.vel.x * currentDelta <= wallsBounds.x &&
-				bounds.localX + bounds.width + ball.vel.x * currentDelta > 0 &&
+			if (bounds.x + ball.vel.x * currentDelta <= G.racketsManager.getLeftRacketBoundsRightX() &&
+				bounds.x + bounds.width + ball.vel.x * currentDelta >= G.racketsManager.getLeftRacketBoundsLeftX() &&
 				bounds.y + bounds.height > G.racketsManager.getRightRacketBoundsTopY() && 
 				bounds.y < G.racketsManager.getRightRacketBoundsBottomY()) {
 
@@ -110,17 +112,17 @@ G.physicsEngine = (function() {
 					onBallCollideBottom(ball);
 				}
 			}
-			else if (bounds.localX + ball.vel.x * currentDelta <= wallsBounds.x  &&
-				bounds.localX + ball.vel.x * currentDelta <= wallsBounds.x &&
+			else if (bounds.x + ball.vel.x * currentDelta <= G.racketsManager.getRightRacketBoundsRightX() &&
+				bounds.x + bounds.width + ball.vel.x * currentDelta >= G.racketsManager.getRightRacketBoundsLeftX() &&
 				bounds.y + bounds.height > G.racketsManager.getRightRacketBoundsTopY() && 
 				bounds.y < G.racketsManager.getRightRacketBoundsBottomY()) {
 
-				// if (ball.vel.y > 0) {
-				// 	onBallCollideTop(ball);
-				// }
-				// else {
-				// 	onBallCollideBottom(ball);
-				// }
+				if (ball.vel.y > 0) {
+					onBallCollideTop(ball);
+				}
+				else {
+					onBallCollideBottom(ball);
+				}
 			}
 		}
 	}
@@ -131,18 +133,22 @@ G.physicsEngine = (function() {
 
 	function onBallCollideTop(ball) {
 		ball.vel.y = -ball.vel.y;
+		G.syncManager.onUpdateBall(ball);
 	}
 
 	function onBallCollideBottom(ball) {
 		ball.vel.y = -ball.vel.y;
+		G.syncManager.onUpdateBall(ball);
 	}
 
 	function onBallCollideLeft(ball) {
 		ball.vel.x = -ball.vel.x;
+		G.syncManager.onUpdateBall(ball);
 	}
 
 	function onBallCollideRight(ball) {
 		ball.vel.x = -ball.vel.x;
+		G.syncManager.onUpdateBall(ball);
 	}
 
 	function updateSceneResizeValues(dec, ratio) {

@@ -2,13 +2,15 @@ G.socketsManager = (function() {
     
     var socket,
         connectionID,
+        serverConfig,
 	    onReady = function() {};
 
     function init(onReadyCallback) {
         onReady = onReadyCallback || onReady;
 
     	$.getJSON("../config.json", function(data) {
-            var address = data.url + ":" + data.port;
+            serverConfig = data;
+            var address = serverConfig.url + ":" + serverConfig.port;
 
             $.getScript('http://' + address + '/socket.io/socket.io.js')
                 .done(function( ) {
@@ -45,7 +47,7 @@ G.socketsManager = (function() {
             $url = $('.mobile-url', $container),
             $qrcode = $('#qr-scan', $container);
 
-        var urlMobile   = window.location.href+"mobile?id="+ data.connectionID;
+        var urlMobile   = serverConfig.url + ':' + serverConfig.port + '/mobile?id=' + data.connectionID;
 
         $url.text(urlMobile);
         $qrcode.qrcode({width:'200', height:'200', text:urlMobile});
@@ -79,9 +81,11 @@ G.socketsManager = (function() {
         socket.on('mobile top', function() {
             G.hudManager.setDebug1Text('YOU: top');
         });
+
         socket.on('mobile bottom', function() {
             G.hudManager.setDebug1Text('YOU: bottom');
         });
+
         socket.on('mobile stop', function() {
             G.hudManager.setDebug1Text('YOU: ');
         });
@@ -116,11 +120,20 @@ G.socketsManager = (function() {
             else {
                 G.hudManager.setInfosText('Game #' + gameRoomID);
             }
-            G.appManager.onGameReady();
+            G.appManager.onGameReady(gameRoomID, isHost);
+        });
+
+        socket.on('sync', function(data) {
+            G.syncManager.onSync(data);
         });
     }
 
+    function emit(message, data) {
+        socket.emit(message, data);
+    }
+
 	return {
-		init: init
+		init: init,
+        emit: emit
 	};
 })();

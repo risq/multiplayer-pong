@@ -6,13 +6,17 @@ G.ballsManager = (function() {
     	
     }
 
-    function createBall(pos, vel) {
-    	var newBall = new Ball(pos);
-		G.stageManager.getScene().addChild(newBall);
-		G.physicsEngine.setVel(newBall, vel);
-		setTimeout(function() {
-    		balls.push(newBall);
-		}, 50);
+    function createBall(ballData) {
+        ballData.ID = ballData.ID || getID();
+        if (!balls[ballData.ID]) {
+        	var newBall = new Ball(ballData.ID, ballData.pos, ballData.color, ballData.radius);
+            G.physicsEngine.setVel(newBall, ballData.vel);
+            G.syncManager.onCreateBall(newBall);
+            G.stageManager.getScene().addChild(newBall);
+    		setTimeout(function() {
+        		balls[ballData.ID] = newBall;
+    		}, 50);
+        }
     }
 
     function createBalls(number, pos, vel, interval, turns, angle, remaining) {
@@ -21,7 +25,10 @@ G.ballsManager = (function() {
         turns = turns || 1;
         angle = angle === undefined ? Math.PI/number : angle;
     	remaining = remaining === undefined ? number : remaining;
-	    createBall(pos, new Vector2(vel * Math.cos(angle), vel * Math.sin(angle)));
+	    createBall({
+            pos: pos, 
+            vel: new Vector2(vel * Math.cos(angle), vel * Math.sin(angle))
+        });
     	if (remaining > 1 && G.appManager.getState() === 'ready') {
 	    	setTimeout(function() {
 	    		createBalls(number, pos, vel, interval, turns, angle + 2 * turns * Math.PI/number, remaining - 1);
@@ -29,17 +36,32 @@ G.ballsManager = (function() {
 	    }
     }
 
+    function updateBall(ballData) {
+        if (ballData && ballData.ID && balls[ballData.ID]) {
+            if (ballData.pos) {
+                balls[ballData.ID].x = ballData.pos.x;
+                balls[ballData.ID].y = ballData.pos.y;
+            }
+            if (ballData.vel) {
+                balls[ballData.ID].vel.copy(ballData.vel);
+            }
+        }
+        else {
+            console.log('error : ball #', ballData.ID, balls[ballData.ID])
+        }
+    }
+
     function removeAllBalls() {
         balls.forEach(removeBall);
-        balls = [];
         G.stageManager.getScene().clearObjectsOfType(Ball);
+        balls = [];
     }
 
     function removeBall(ball) {
-        G.stageManager.getScene().removeChild(ball);
-        _.remove(balls, function (ballElem) {
-            return _.isEqual(ballElem, ball);
-        })
+        if (ball) {
+            G.stageManager.getScene().removeChild(ball);
+            delete balls[ball.ID];
+        }
     }
 
     function onBallOut(ball) {
@@ -47,6 +69,11 @@ G.ballsManager = (function() {
         setTimeout(function() {
             removeBall(ball);
         }, 2000);
+    }
+
+    function getID() {
+        var ID = Math.round(Math.random() * 10000);
+        return balls[ID] ? getID() : ID;
     }
 
     function getBalls() {
@@ -57,8 +84,10 @@ G.ballsManager = (function() {
 		init: init,
 		createBall: createBall,
 		createBalls: createBalls,
+        updateBall: updateBall,
         removeAllBalls: removeAllBalls,
         removeBall: removeBall,
+        getID: getID,
 		getBalls: getBalls,
         onBallOut: onBallOut
 	};

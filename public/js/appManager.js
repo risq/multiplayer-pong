@@ -6,14 +6,16 @@ G.config = {
 
 G.appManager = (function() {
 
-    var startTime = new Date();
-    var state = 'waiting';
+    var startTime = new Date(),
+        gameRoomID,
+        isHost,
+        state = 'waiting';
     
     function init() {
-    	G.socketsManager.init(initStage);
+    	G.socketsManager.init(onConnectionReady);
     }
 
-    function initStage() {
+    function onConnectionReady() {
     	G.stageManager.init();
     }
 
@@ -21,10 +23,14 @@ G.appManager = (function() {
         return startTime;
     }
 
-    function onGameReady() {
-        console.log('game ready');
+    function onGameReady(newGameRoomID, newGameIsHost) {
+        gameRoomID = newGameRoomID;
+        isHost = newGameIsHost;
         state = 'ready';
-        G.ballsManager.createBalls(76, null, 500, 10, 4);
+
+        if (isHost) {
+            G.ballsManager.createBalls(4, null, 500, 10, 1);
+        }
     }
 
     function onOpponentDisconnect() {

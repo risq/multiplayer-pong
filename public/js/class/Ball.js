@@ -1,5 +1,6 @@
-Ball = function(pos, radius, color) {
+Ball = function(ID, pos, color, radius) {
     PIXI.DisplayObjectContainer.call( this );
+    this.ID = ID;
     this.radius = radius || 28;
     this.color  = color  || parseInt(Please.make_color().slice(1), 16);
     this.vel = new Vector2(0, 0);
