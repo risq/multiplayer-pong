@@ -1,60 +1,99 @@
 G.racketsManager = (function() {
 
-    var rackets = {
-        player: null,
-        opponent: null
-    };
+    var playerSide = 'left',
+        opponentSide = 'right',
+        rackets = {
+            left: null,
+            right: null
+        },
+        margin = 30;
     
     function init(scene) {
-        rackets.player = new Racket(new Vector2(30, G.stageManager.getScene().getCenter().y));
-    	rackets.opponent = new Racket(new Vector2(G.config.baseSceneWidth - 30, G.stageManager.getScene().getCenter().y));
+        rackets.left = new Racket();
+        rackets.right = new Racket(); 
 
-        G.stageManager.getScene().addRacket(rackets.player);
-        G.stageManager.getScene().addRacket(rackets.opponent);
+        resetRacketsPositions();
+
+        G.stageManager.getScene().addRacket(rackets.left);
+        G.stageManager.getScene().addRacket(rackets.right);
+    }
+
+    function resetRacketsPositions() {
+
+        var centerY = G.stageManager.getScene().getCenter().y;
+
+        rackets.left.x  = margin;
+        rackets.left.y  = centerY;
+        rackets.right.x = G.config.baseSceneWidth - margin; 
+        rackets.right.y = centerY ;
+
+        movePlayerRacketTo(centerY);
+        moveOpponentRacketTo(centerY);
+    }
+
+    function setPlayerSide(isHost) {
+        console.log('setPlayerSide');
+        playerSide   = isHost ? 'left'  : 'right';
+        opponentSide = isHost ? 'right' : 'left';
+    }
+
+    function movePlayerRacketTo(y) {
+        if (y !== rackets[playerSide].movingToY) {
+            G.syncManager.onRacketSetMovingToY(y);
+            rackets[playerSide].setMovingToY(y);
+        }
+    }
+
+    function moveOpponentRacketTo(y) {
+        rackets[opponentSide].setMovingToY(y);
     }
 
     function getLeftRacket() {
-        return rackets.player;
-    }
-    function getRightRacket() {
-        return rackets.opponent;
+        return rackets.left;
     }
 
+    function getRightRacket() {
+        return rackets.right;
+    }
 
     function getLeftRacketBoundsTopY() {
-        return rackets.player.getBounds().y;
+        return rackets.left.getBounds().y;
     }
 
     function getLeftRacketBoundsBottomY() {
-        return rackets.player.getBounds().y + rackets.player.getBounds().height;
+        return rackets.left.getBounds().y + rackets.left.getBounds().height;
     }
 
     function getLeftRacketBoundsLeftX() {
-        return rackets.player.getBounds().x;
+        return rackets.left.getBounds().x;
     }
 
     function getLeftRacketBoundsRightX() {
-        return rackets.player.getBounds().x + rackets.player.getBounds().width;
+        return rackets.left.getBounds().x + rackets.left.getBounds().width;
     }
 
     function getRightRacketBoundsTopY() {
-        return rackets.opponent.getBounds().y;
+        return rackets.right.getBounds().y;
     }
 
     function getRightRacketBoundsBottomY() {
-        return rackets.opponent.getBounds().y + rackets.opponent.getBounds().height;
+        return rackets.right.getBounds().y + rackets.right.getBounds().height;
     }
 
     function getRightRacketBoundsLeftX() {
-        return rackets.opponent.getBounds().x;
+        return rackets.right.getBounds().x;
     }
 
     function getRightRacketBoundsRightX() {
-        return rackets.opponent.getBounds().x + rackets.opponent.getBounds().width;
+        return rackets.right.getBounds().x + rackets.right.getBounds().width;
     }
 
 	return {
 		init: init,
+        resetRacketsPositions: resetRacketsPositions,
+        setPlayerSide: setPlayerSide,
+        movePlayerRacketTo: movePlayerRacketTo,
+        moveOpponentRacketTo: moveOpponentRacketTo,
         getLeftRacket: getLeftRacket,
         getRightRacket: getRightRacket,
         getLeftRacketBoundsTopY: getLeftRacketBoundsTopY,

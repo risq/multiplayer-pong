@@ -26,10 +26,19 @@ G.syncManager = (function() {
             }
         }
         else if (data.event === 'setBallOut') {
-            var ball = G.ballsManager.getBall(data.ID);
-            if (ball) {
-                G.ballsManager.setBallOut(ball);
+            var outBall = G.ballsManager.getBall(data.ID);
+            if (outBall) {
+                G.ballsManager.setBallOut(outBall);
             }
+        }
+        else if (data.event === 'destroyBall') {
+            var destroyedBall = G.ballsManager.getBall(data.ID);
+            if (destroyedBall) {
+                G.ballsManager.destroyBall(destroyedBall);
+            }
+        }
+        else if (data.event === 'racketMove') {
+            G.racketsManager.moveOpponentRacketTo(data.y);
         }
     }
 
@@ -46,7 +55,7 @@ G.syncManager = (function() {
                 x: ball.vel.x,
                 y: ball.vel.y,
             }
-        }
+        };
         G.socketsManager.emit('sync', data);
     }
 
@@ -63,7 +72,7 @@ G.syncManager = (function() {
                 y: ball.vel.y,
             },
             collidingDirection: collidingDirection
-        }
+        };
         G.socketsManager.emit('sync', data);
     }
 
@@ -71,7 +80,23 @@ G.syncManager = (function() {
         var data = {
             event: 'setBallOut',
             ID: ball.ID
-        }
+        };
+        G.socketsManager.emit('sync', data);
+    }
+
+    function onBallDestroy(ball) {
+        var data = {
+            event: 'destroyBall',
+            ID: ball.ID
+        };
+        G.socketsManager.emit('sync', data);
+    }
+
+    function onRacketSetMovingToY(y) {
+        var data = {
+            event: 'racketMove',
+            y: y
+        };
         G.socketsManager.emit('sync', data);
     }
 
@@ -80,7 +105,9 @@ G.syncManager = (function() {
         onSync: onSync,
         onCreateBall: onCreateBall,
         onUpdateBall: onUpdateBall,
-        onBallOut: onBallOut
+        onBallOut: onBallOut,
+        onBallDestroy: onBallDestroy,
+        onRacketSetMovingToY: onRacketSetMovingToY
     };
 
 })();

@@ -1,1 +1,0 @@
-G.appManager.init();

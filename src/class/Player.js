@@ -17,7 +17,7 @@ p.onRoomJoin = function(room) {
 };
 
 p.onSync = function(data) {
-    if (this.isHost) {
+    if (this.isHost || data.event === 'racketMove') {
         this.emitOpponent('sync', data);
     }
 };

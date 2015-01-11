@@ -24,7 +24,7 @@ G.particlesManager = (function() {
     }
 
     function createBallCollideParticles(ball, angle) {
-        if (!ball.isEmitting) { 
+        if (ball && !ball.isEmitting) { 
             ball.isEmitting = true;
             emitter = new cloudkid.Emitter(
                 particlesContainer,
@@ -84,6 +84,7 @@ G.particlesManager = (function() {
     }
 
     function createBallExplodeParticles(ball) {
+        if (ball) {
             emitter = new cloudkid.Emitter(
                 particlesContainer,
 
@@ -138,6 +139,7 @@ G.particlesManager = (function() {
             emitter.ballID = ball.ID;
 
             emitters.push(emitter);
+        }
     }
 
     function getEmitters() {

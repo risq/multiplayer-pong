@@ -1,5 +1,5 @@
 {
 	"url_server" : "m-pong.dev.valentinledrapier.com",
-	"url" : "localhost",
-	"port" : 1337
+	"url" : "192.168.1.79",
+	"port" : 80
 }

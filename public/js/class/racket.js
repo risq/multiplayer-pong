@@ -14,16 +14,22 @@ Racket = function(pos, color) {
     this.updatePivot();
     this.x = pos.x;
     this.y = pos.y;
+
+    this.movingToY = 0;
 };
 
 Racket.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 Racket.prototype.constructor = Racket;
 
-Racket.prototype.init = function() {
-	
+Racket.prototype.setMovingToY = function(y) {
+	// this.movingToY = y - this.height * 0.5 < 0 ? this.height * 0.5 :
+ //                     y + this.height * 0.5 > G.config.baseSceneHeight ? G.config.baseSceneHeight - this.height * 0.5 :
+ //                     y;
+
+    this.movingToY = y;
 };
 
 Racket.prototype.updatePivot = function() {
-    this.pivot.x = this.width / 2;
-    this.pivot.y = this.height / 2;
+    this.pivot.x = this.width * 0.5;
+    this.pivot.y = this.height * 0.5;
 };

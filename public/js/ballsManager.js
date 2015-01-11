@@ -49,7 +49,7 @@ G.ballsManager = (function() {
             }
         }
         else {
-            console.log('error : ball #', ballData.ID, balls[ballData.ID])
+            console.log('error : ball #', ballData.ID, balls[ballData.ID]);
         }
     }
 
@@ -73,8 +73,23 @@ G.ballsManager = (function() {
         }
     }
 
+    function onBallOutDestroy(ball) {
+        if (G.appManager.getIsHost()) {
+            G.syncManager.onBallDestroy(ball);
+            destroyBall(ball);
+        }
+    }
+
     function setBallOut(ball) {
         ball.out = true;
+        setTimeout(function() {
+            destroyBall(ball);
+        }, 750);
+    }
+
+    function destroyBall(ball) {
+        G.particlesManager.createBallExplodeParticles(ball);
+        removeBall(ball);
     }
 
     function getID() {
@@ -101,6 +116,8 @@ G.ballsManager = (function() {
 		getBalls: getBalls,
         getBall: getBall,
         onBallOut: onBallOut,
-        setBallOut: setBallOut
+        onBallOutDestroy: onBallOutDestroy,
+        setBallOut: setBallOut,
+        destroyBall: destroyBall
 	};
 })();

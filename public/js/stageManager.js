@@ -80,12 +80,14 @@ G.stageManager = (function() {
         stage.addChild(background);
 
         scene = new Scene(G.config.baseSceneWidth, G.config.baseSceneHeight);
+
         stage.addChild(scene);
         updateGameSize();
         
         window.onresize = updateGameSize;
 
         stage.filters = [pixelateFilter, scanFilter];
+        // stage.filters = [pixelateFilter];
 
         G.hudManager.init();
         G.racketsManager.init();
@@ -115,6 +117,7 @@ G.stageManager = (function() {
             stats.update();
             G.physicsEngine.update(delta);
             G.particlesManager.update(delta);
+
             renderer.render(stage);
         }
     }
@@ -180,11 +183,16 @@ G.stageManager = (function() {
         return dec;
     }
 
+    function getRatio() {
+        return ratio;
+    }
+
     return {
         init: init,
         setPixelShaderSize: setPixelShaderSize,
         getScene: getScene,
         getStage: getStage,
-        getDec: getDec
+        getDec: getDec,
+        getRatio: getRatio
     };
 })();

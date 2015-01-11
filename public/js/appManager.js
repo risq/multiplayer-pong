@@ -9,18 +9,25 @@ G.appManager = (function() {
     var startTime = new Date(),
         gameRoomID,
         isHost,
+        controlMode,
         state = 'waiting';
     
     function init() {
-    	G.socketsManager.init(onConnectionReady);
-    }
-
-    function onConnectionReady() {
-    	G.stageManager.init();
+    	G.socketsManager.init();
     }
 
     function getStartTime() {
         return startTime;
+    }
+    
+    function onConnectionReady(mode) {
+        controlMode = mode;
+
+    	G.stageManager.init();
+
+        if (controlMode === 'desktopOnly') {
+            G.desktopControlsManager.init();
+        }
     }
 
     function onGameReady(newGameRoomID, newGameIsHost) {
@@ -28,8 +35,15 @@ G.appManager = (function() {
         isHost = newGameIsHost;
         state = 'ready';
 
+        G.racketsManager.setPlayerSide(isHost);
+        G.racketsManager.resetRacketsPositions();
+
         if (isHost) {
-            G.ballsManager.createBalls(16, null, 650, 50, 1);
+            G.ballsManager.createBalls(16, null, 650, 4000, 1);
+            // G.ballsManager.createBall({
+            //     pos: new Vector2(60, 10), 
+            //     vel: new Vector2(-40, 300)
+            // });
         }
     }
 
@@ -46,13 +60,19 @@ G.appManager = (function() {
         return isHost;
     }
 
+    function getMode() {
+        return controlMode;
+    }
+
     return {
     	init: init,
         getStartTime: getStartTime,
+        onConnectionReady: onConnectionReady,
         onGameReady: onGameReady,
         onOpponentDisconnect: onOpponentDisconnect,
         getState: getState,
-        getIsHost: getIsHost
+        getIsHost: getIsHost,
+        getMode: getMode
     };
 
 })();

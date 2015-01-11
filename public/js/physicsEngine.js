@@ -20,7 +20,8 @@ G.physicsEngine = (function() {
     	currentDelta = delta;
 
     	if (currentDelta) {
-	    	G.ballsManager.getBalls().forEach(updateBall);
+    		updateRackets();
+    		updateBalls();
 	    }
     }
 
@@ -30,6 +31,24 @@ G.physicsEngine = (function() {
 
 	function addVel(object, vel) {
 		object.vel.addSelf(vel);
+	}
+
+	function updateRackets() {
+		updateRacket(G.racketsManager.getLeftRacket());
+		updateRacket(G.racketsManager.getRightRacket());
+	}
+
+	function updateRacket(racket) {
+		if (Math.abs(racket.y - racket.movingToY) > 1) {
+			racket.y += (racket.movingToY - racket.y)  * 15 * currentDelta; 
+		}
+		else {
+			racket.y = racket.movingToY;
+		}
+	}
+
+	function updateBalls() {
+		G.ballsManager.getBalls().forEach(updateBall);
 	}
 
 	function updateBall(ball, index) {
@@ -59,7 +78,12 @@ G.physicsEngine = (function() {
 			bounds.localY <= wallsBounds.y) {
 
 			ball.y = wallsBounds.y / currentRatio + safetyGapSize;
-			onBallCollideTop(ball);
+			if (ball.out) {
+				G.ballsManager.onBallOutDestroy(ball);
+			}
+			else {
+				onBallCollideTop(ball);
+			}
 		}
 
 		// Test bottom collision
@@ -67,21 +91,25 @@ G.physicsEngine = (function() {
 				 bounds.localY + bounds.height >= wallsBounds.y + wallsBounds.height) {
 
 			ball.y = wallsBounds.y / currentRatio - ball.radius - safetyGapSize + wallsBounds.height / currentRatio;
-			onBallCollideBottom(ball);
+			if (ball.out) {
+				G.ballsManager.onBallOutDestroy(ball);
+			}
+			else {
+				onBallCollideBottom(ball);
+			}
 		}
 
 		// If ball is not out of the game
 		if (!ball.out) {
 
 			// Test left collision
-			if (bounds.x + ball.vel.x * currentDelta < G.racketsManager.getLeftRacketBoundsRightX() || 
-				bounds.x <= G.racketsManager.getLeftRacketBoundsRightX()) {
+			if (bounds.x + (ball.vel.x * currentDelta) * currentRatio < G.racketsManager.getLeftRacketBoundsRightX()) {
 
 				// If the ball touches left racket
 				if (bounds.y + bounds.height > G.racketsManager.getLeftRacketBoundsTopY() &&
 					bounds.y < G.racketsManager.getLeftRacketBoundsBottomY()) {
 
-					ball.x = (G.racketsManager.getLeftRacketBoundsRightX() - currentDec.x)  / currentRatio;
+					ball.x = (G.racketsManager.getLeftRacketBoundsRightX() - currentDec.x) / currentRatio;
 					onBallCollideLeft(ball);				
 				}
 				else {
@@ -89,8 +117,7 @@ G.physicsEngine = (function() {
 				}
 			}
 			// Test right collision
-			else if (bounds.x + bounds.width + ball.vel.x * currentDelta > G.racketsManager.getRightRacketBoundsLeftX() ||
-					 bounds.x + bounds.width >= G.racketsManager.getRightRacketBoundsLeftX()) {
+			else if (bounds.x + bounds.width + (ball.vel.x * currentDelta) * currentRatio > G.racketsManager.getRightRacketBoundsLeftX()) {
 
 				// If the ball touches right racket
 				if (bounds.y + bounds.height > G.racketsManager.getRightRacketBoundsTopY() &&
@@ -107,40 +134,56 @@ G.physicsEngine = (function() {
 
 		// If ball is out, test collision with top & bottom of rackets
 		else {
+			// Ball needs to be destroy
 			if (bounds.x + bounds.width + ball.vel.x * currentDelta < G.racketsManager.getLeftRacketBoundsLeftX() - 40 * currentRatio ||
 				bounds.x + ball.vel.x * currentDelta > G.racketsManager.getRightRacketBoundsRightX() + 40 * currentRatio) {
 
-				G.particlesManager.createBallExplodeParticles(ball);
-				G.ballsManager.removeBall(ball);
+				G.ballsManager.onBallOutDestroy(ball);
 			}
 
 			// Left racket
-			else if (bounds.x + ball.vel.x * currentDelta <= G.racketsManager.getLeftRacketBoundsRightX() &&
+			else if (bounds.x + ball.vel.x * currentDelta < G.racketsManager.getLeftRacketBoundsRightX() &&
 				bounds.y + bounds.height > G.racketsManager.getLeftRacketBoundsTopY() && 
 				bounds.y < G.racketsManager.getLeftRacketBoundsBottomY()) {
 
+				var leftRacketCenterY = (G.racketsManager.getLeftRacketBoundsTopY() + G.racketsManager.getLeftRacketBoundsBottomY()) * 0.5;
+
+				// collide top of racket
 				if (ball.vel.y > 0) {
-					ball.x += safetyGapSize;
+					if (ball.y < G.racketsManager.getLeftRacket().y) {
 					onBallCollideTop(ball);
+					}
+						ball.y = (G.racketsManager.getLeftRacketBoundsTopY() - currentDec.y - bounds.height) / currentRatio - 2 * safetyGapSize;
 				}
-				else {
-					ball.x -= safetyGapSize;
+				// collide bottom of racket
+				else if (ball.vel.y < 0) {
+					if (ball.y > G.racketsManager.getLeftRacket().y) {
 					onBallCollideBottom(ball);
+					}
+						ball.y = (G.racketsManager.getLeftRacketBoundsBottomY() - currentDec.y) / currentRatio + 2 * safetyGapSize;
 				}
 			}
 
 			// Right racket
-			else if (bounds.x + ball.vel.x * currentDelta <= G.racketsManager.getRightRacketBoundsRightX() &&
+			else if (bounds.x + ball.vel.x * currentDelta > G.racketsManager.getRightRacketBoundsLeftX() &&
 				bounds.y + bounds.height > G.racketsManager.getRightRacketBoundsTopY() && 
 				bounds.y < G.racketsManager.getRightRacketBoundsBottomY()) {
 
+				var rightRacketCenterY = (G.racketsManager.getLeftRacketBoundsTopY() + G.racketsManager.getLeftRacketBoundsBottomY()) * 0.5;
+
+				// collide top of racket
 				if (ball.vel.y > 0) {
-					ball.x += safetyGapSize;
+					if (ball.y < G.racketsManager.getRightRacket().y) {
 					onBallCollideTop(ball);
+					}
+						ball.y = (G.racketsManager.getRightRacketBoundsTopY() - currentDec.y - bounds.height) / currentRatio - 2 * safetyGapSize;
 				}
-				else {
-					ball.x -= safetyGapSize;
+				// collide bottom of racket
+				else if (ball.vel.y < 0) {
+					if (ball.y > G.racketsManager.getRightRacket().y) {
 					onBallCollideBottom(ball);
+					}
+						ball.y = (G.racketsManager.getRightRacketBoundsBottomY() - currentDec.y) / currentRatio + 2 * safetyGapSize;
 				}
 			}
 		}
@@ -148,6 +191,7 @@ G.physicsEngine = (function() {
 
 	function onBallCollideTop(ball) {
 		ball.vel.y = -ball.vel.y;
+		ball.vel.x += ball.vel.x * 0.02; 
 		if (!ball.out) {
 			G.syncManager.onUpdateBall(ball, 't');
 		}
@@ -156,6 +200,7 @@ G.physicsEngine = (function() {
 
 	function onBallCollideBottom(ball) {
 		ball.vel.y = -ball.vel.y;
+		ball.vel.x += ball.vel.x * 0.02; 
 		if (!ball.out) {
 			G.syncManager.onUpdateBall(ball, 'b');
 		}

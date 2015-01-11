@@ -3,10 +3,9 @@ G.socketsManager = (function() {
     var socket,
         connectionID,
         serverConfig,
-	    onReady = function() {};
+        controlMode;
 
-    function init(onReadyCallback) {
-        onReady = onReadyCallback || onReady;
+    function init() {
 
     	$.getJSON("../config.json", function(data) {
             serverConfig = data;
@@ -59,13 +58,13 @@ G.socketsManager = (function() {
         socket.emit('desktopOnly', connectionID);
     }
 
-    function onConnectionReady() {
-
+    function onConnectionReady(mode) {
         $('#info-connection').hide();
         socket.removeListener('connnectionReady');
 
         initApp();
-        onReady();
+
+        G.appManager.onConnectionReady(mode);
     }
 
     function initApp () {

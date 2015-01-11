@@ -6,14 +6,14 @@ function DeviceConnection(connectionID, onConnectionReadyCallback) {
     this.connectionID = connectionID;
     this.desktop = null;
     this.mobile  = null;
-    this.desktopOny = false;
+    this.desktopOnly = false;
     this.onConnectionReadyCallback = onConnectionReadyCallback;
 }
 
 var p = DeviceConnection.prototype;
 
 p.setMobile = function(socket) {
-    if (!this.desktopOny && !this.mobile) {
+    if (!this.desktopOnly && !this.mobile) {
         this.mobile = socket;
         this.sendConnectionReady();
     }
@@ -24,20 +24,19 @@ p.setDesktop = function(socket) {
 };
 
 p.setDesktopOnly = function() {
-    this.desktopOny = true;
+    this.desktopOnly = true;
     if (this.desktop) {
         this.sendConnectionReady();   
     }
-}
+};
 
 p.sendConnectionReady = function() {
-    console.log('sendConnectionReady')
-    this.desktop.emit('connectionReady');
-    if (this.mobile) {
+    this.desktop.emit('connectionReady', this.desktopOnly ? 'desktopOnly' : 'remote');
+    if (!this.desktopOnly && this.mobile) {
         this.mobile.emit('connectionReady');
     }
-    this.onConnectionReadyCallback(this)
-}
+    this.onConnectionReadyCallback(this);
+};
 
 /*
  * Active events for the two socket
@@ -55,7 +54,7 @@ p.initMobileEvents = function(player) {
     this.mobile.on('mobileTop', player.onMobileTop.bind(player));
     this.mobile.on('mobileBottom', player.onMobileBottom.bind(player));
     this.mobile.on('mobileStop', player.onMobileStop.bind(player));
-}
+};
 
 p.getPlayerSockets = function() {
     return {
