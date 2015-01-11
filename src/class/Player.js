@@ -22,6 +22,18 @@ p.onSync = function(data) {
     }
 };
 
+p.onTop = function() {
+    this.emitOpponent('opponent top');
+};
+
+p.onBottom = function() {
+    this.emitOpponent('opponent bottom');
+};
+
+p.onStop = function() {
+    this.emitOpponent('opponent stop');
+};
+
 p.onMobileTop = function() {
     this.emit('mobile top');
     this.emitOpponent('opponent top');

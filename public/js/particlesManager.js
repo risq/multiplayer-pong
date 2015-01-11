@@ -46,8 +46,8 @@ G.particlesManager = (function() {
                         "end": "#333333"
                     },
                     "speed": {
-                        "start": 120 / 16 * ball.radius,
-                        "end": 40 / 16 * ball.radius
+                        "start": 10 * ball.radius,
+                        "end": 2 * ball.radius
                     },
                     "acceleration": {
                         "x": 0,
@@ -63,11 +63,11 @@ G.particlesManager = (function() {
                     },
                     "lifetime": {
                         "min": 0.2,
-                        "max": 0.6
+                        "max": 0.5
                     },
                     "blendMode": "normal",
-                    "frequency": 0.01,
-                    "emitterLifetime": 0.3,
+                    "frequency": 0.02,
+                    "emitterLifetime": 0.2,
                     "maxParticles": 6,
                     "pos": {
                         "x": ball.x + ball.radius / 2,
@@ -125,7 +125,7 @@ G.particlesManager = (function() {
                     },
                     "blendMode": "normal",
                     "frequency": 0.01,
-                    "emitterLifetime": 0.5,
+                    "emitterLifetime": 0.1,
                     "maxParticles": 32,
                     "pos": {
                         "x": ball.x + ball.radius / 2,
