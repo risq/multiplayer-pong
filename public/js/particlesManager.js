@@ -96,7 +96,7 @@ G.particlesManager = (function() {
                     },
                     "scale": {
                         "start": 1 / 24 * ball.radius,
-                        "end":   1 / 54 * ball.radius,
+                        "end":   1 / 48 * ball.radius,
                         "minimumScaleMultiplier": 1
                     },
                     "color": {
@@ -104,8 +104,8 @@ G.particlesManager = (function() {
                         "end": "#333333"
                     },
                     "speed": {
-                        "start": 20 * ball.radius,
-                        "end": 40 / 16 * ball.radius
+                        "start": 50 * ball.radius,
+                        "end": 10 * ball.radius
                     },
                     "acceleration": {
                         "x": 0,
@@ -125,7 +125,7 @@ G.particlesManager = (function() {
                     },
                     "blendMode": "normal",
                     "frequency": 0.01,
-                    "emitterLifetime": 0.1,
+                    "emitterLifetime": 0.15,
                     "maxParticles": 32,
                     "pos": {
                         "x": ball.x + ball.radius / 2,

@@ -2,6 +2,8 @@ Scene = function(baseWidth, baseHeight) {
     PIXI.DisplayObjectContainer.call( this );
     this.baseWidth = baseWidth;
     this.baseHeight = baseHeight;
+    this.width = baseWidth;
+    this.height = baseHeight;
     this.init();
 };
 

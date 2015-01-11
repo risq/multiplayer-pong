@@ -107,8 +107,9 @@ G.physicsEngine = (function() {
 
 		// If ball is out, test collision with top & bottom of rackets
 		else {
-			if (bounds.x + bounds.width + ball.vel.x * currentDelta < G.racketsManager.getLeftRacketBoundsLeftX() ||
-				bounds.x + ball.vel.x * currentDelta > G.racketsManager.getRightRacketBoundsRightX()) {
+			if (bounds.x + bounds.width + ball.vel.x * currentDelta < G.racketsManager.getLeftRacketBoundsLeftX() - 40 * currentRatio ||
+				bounds.x + ball.vel.x * currentDelta > G.racketsManager.getRightRacketBoundsRightX() + 40 * currentRatio) {
+
 				G.particlesManager.createBallExplodeParticles(ball);
 				G.ballsManager.removeBall(ball);
 			}

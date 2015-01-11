@@ -10,6 +10,7 @@ G.stageManager = (function() {
         dec = new Vector2(),
         ratio = 1,
         pixelateFilter,
+        background,
         colorStepFilter,
         scanFilter,
         checkDeltaInterval,
@@ -66,7 +67,6 @@ G.stageManager = (function() {
         pixelateFilter = new PIXI.PixelateFilter();
         pixelateFilter.size.x = 3;
         pixelateFilter.size.y = 3;
-        stage.filters = [pixelateFilter, scanFilter];
 
         stats = new Stats();
         stats.domElement.style.position = 'absolute';
@@ -74,12 +74,18 @@ G.stageManager = (function() {
         stats.domElement.style.top = '0px';
         document.body.appendChild(stats.domElement);
 
+        background = new PIXI.Graphics();
+        background.beginFill(0x111111);
+        background.drawRect(0, 0, window.innerWidth, window.innerHeight);
+        stage.addChild(background);
+
         scene = new Scene(G.config.baseSceneWidth, G.config.baseSceneHeight);
         stage.addChild(scene);
         updateGameSize();
         
         window.onresize = updateGameSize;
 
+        stage.filters = [pixelateFilter, scanFilter];
 
         G.hudManager.init();
         G.racketsManager.init();
@@ -150,6 +156,9 @@ G.stageManager = (function() {
         scene.scale = new PIXI.Point(ratio, ratio);
         scene.x = dec.x;
         scene.y = dec.y;
+
+        background.width = window.innerWidth;
+        background.height = window.innerHeight;
 
         G.physicsEngine.updateSceneResizeValues(dec, ratio);
     }
