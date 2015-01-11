@@ -9,8 +9,8 @@ G.racketsManager = (function() {
         rackets.player = new Racket(new Vector2(30, G.stageManager.getScene().getCenter().y));
     	rackets.opponent = new Racket(new Vector2(G.config.baseSceneWidth - 30, G.stageManager.getScene().getCenter().y));
 
-        G.stageManager.getScene().addChild(rackets.player);
-        G.stageManager.getScene().addChild(rackets.opponent);
+        G.stageManager.getScene().addRacket(rackets.player);
+        G.stageManager.getScene().addRacket(rackets.opponent);
     }
 
     function getLeftRacketBoundsTopY() {

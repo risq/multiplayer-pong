@@ -5,12 +5,25 @@ G.syncManager = (function() {
     }
 
     function onSync(data) {
-        console.log('sync', data);
+        // console.log('sync', data);
         if (data.event === 'createBall') {
             G.ballsManager.createBall(data);
         }
         else if (data.event === 'updateBall') {
             G.ballsManager.updateBall(data);
+
+            if (data.collidingDirection === 't') {
+                G.particlesManager.createBallParticles(G.ballsManager.getBall(data.ID), 90);
+            }
+            else if (data.collidingDirection === 'b') {
+                G.particlesManager.createBallParticles(G.ballsManager.getBall(data.ID), 270);
+            }
+            else if (data.collidingDirection === 'l') {
+                G.particlesManager.createBallParticles(G.ballsManager.getBall(data.ID), 0);
+            }
+            else if (data.collidingDirection === 'r') {
+                G.particlesManager.createBallParticles(G.ballsManager.getBall(data.ID), 180);
+            }
         }
         else if (data.event === 'setBallOut') {
             var ball = G.ballsManager.getBall(data.ID);
@@ -37,7 +50,7 @@ G.syncManager = (function() {
         G.socketsManager.emit('sync', data);
     }
 
-    function onUpdateBall(ball) {
+    function onUpdateBall(ball, collidingDirection) {
         var data = {
             event: 'updateBall',
             ID: ball.ID,
@@ -48,7 +61,8 @@ G.syncManager = (function() {
             vel: {
                 x: ball.vel.x,
                 y: ball.vel.y,
-            }
+            },
+            collidingDirection: collidingDirection
         }
         G.socketsManager.emit('sync', data);
     }

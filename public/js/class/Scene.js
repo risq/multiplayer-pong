@@ -10,7 +10,14 @@ Scene.prototype.constructor = Scene;
 
 Scene.prototype.init = function() {
 	this.drawBounds();
-	
+
+	this.particlesContainer = new PIXI.DisplayObjectContainer();        
+	this.racketsContainer   = new PIXI.DisplayObjectContainer();        
+	this.ballsContainer     = new PIXI.DisplayObjectContainer(); 
+
+    this.addChild(this.particlesContainer);
+    this.addChild(this.racketsContainer);
+    this.addChild(this.ballsContainer);
 };
 
 Scene.prototype.drawBounds = function() {
@@ -21,8 +28,6 @@ Scene.prototype.drawBounds = function() {
 	graphics.drawRect(0, 0, this.baseWidth, this.baseHeight);
 
 	this.addChild(graphics);
-
-	console.log(this);
 };
 
 Scene.prototype.getCenter = function() {
@@ -37,8 +42,36 @@ Scene.prototype.clearObjectsOfType = function(type) {
 	objects.forEach(function(object) {
 		this.removeChild(object);
 	}.bind(this));
-
 }
+
+Scene.prototype.clearBalls = function() {
+	this.ballsContainer.removeChildren();
+}
+
+Scene.prototype.addBall = function(ball) {
+	this.ballsContainer.addChild(ball);
+}
+
+Scene.prototype.removeBall = function(ball) {
+	this.ballsContainer.removeChild(ball);
+}
+
+Scene.prototype.addRacket = function(racket) {
+	this.racketsContainer.addChild(racket);
+}
+
+Scene.prototype.getParticlesContainer = function() {
+	return this.particlesContainer;
+}
+
+Scene.prototype.getRacketsContainer = function() {
+	return this.racketsContainer;
+}
+
+Scene.prototype.getBallsContainer = function() {
+	return this.ballsContainer;
+}
+
 
 
 

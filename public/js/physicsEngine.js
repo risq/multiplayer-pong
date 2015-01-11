@@ -3,7 +3,7 @@ G.physicsEngine = (function() {
 	var currentDelta = 0,
 		currentDec = new Vector2(),
 		currentRatio = 1,
-		safetyGapSize = 10,
+		safetyGapSize = 6,
 		racketsMargin = 34,
 
 		wallsBounds;
@@ -13,7 +13,7 @@ G.physicsEngine = (function() {
 			0, 
 			safetyGapSize * 0.5 * currentRatio, 
 			(G.config.baseSceneWidth) * currentRatio,
-			(G.config.baseSceneHeight - safetyGapSize * 0.5) * currentRatio);
+			(G.config.baseSceneHeight - safetyGapSize) * currentRatio);
     }
 
     function update(delta) {
@@ -34,6 +34,9 @@ G.physicsEngine = (function() {
 
 	function updateBall(ball, index) {
 		if (ball && ball.physics) {
+			if (ball.vel.x >= -50 && ball.vel.x <= 50) {
+				ball.vel.x = ball.vel.x + ball.vel.x * 0.1;
+			}
 			checkBallCollision(ball)
 			updateObjectPos(ball);
 		}
@@ -54,7 +57,7 @@ G.physicsEngine = (function() {
 		if (bounds.localY + ball.vel.y * currentDelta <= wallsBounds.y || 
 			bounds.localY <= wallsBounds.y) {
 
-			ball.y = wallsBounds.y + safetyGapSize / currentRatio;
+			ball.y = wallsBounds.y / currentRatio + safetyGapSize;
 			onBallCollideTop(ball);
 		}
 
@@ -62,7 +65,7 @@ G.physicsEngine = (function() {
 		else if (bounds.localY + bounds.height + ball.vel.y * currentDelta >= wallsBounds.y + wallsBounds.height || 
 				 bounds.localY + bounds.height >= wallsBounds.y + wallsBounds.height) {
 
-			ball.y = wallsBounds.y + (wallsBounds.height - ball.radius - safetyGapSize) / currentRatio;
+			ball.y = wallsBounds.y / currentRatio - ball.radius - safetyGapSize + wallsBounds.height / currentRatio;
 			onBallCollideBottom(ball);
 		}
 
@@ -77,7 +80,7 @@ G.physicsEngine = (function() {
 				if (bounds.y + bounds.height > G.racketsManager.getLeftRacketBoundsTopY() &&
 					bounds.y < G.racketsManager.getLeftRacketBoundsBottomY()) {
 
-					ball.x = (G.racketsManager.getLeftRacketBoundsRightX()- currentDec.x)  / currentRatio;
+					ball.x = (G.racketsManager.getLeftRacketBoundsRightX() - currentDec.x)  / currentRatio;
 					onBallCollideLeft(ball);
 				}
 				else {
@@ -111,9 +114,11 @@ G.physicsEngine = (function() {
 				bounds.y < G.racketsManager.getLeftRacketBoundsBottomY()) {
 
 				if (ball.vel.y > 0) {
+					ball.x += safetyGapSize;
 					onBallCollideTop(ball);
 				}
 				else {
+					ball.x -= safetyGapSize;
 					onBallCollideBottom(ball);
 				}
 			}
@@ -125,9 +130,11 @@ G.physicsEngine = (function() {
 				bounds.y < G.racketsManager.getRightRacketBoundsBottomY()) {
 
 				if (ball.vel.y > 0) {
+					ball.x += safetyGapSize;
 					onBallCollideTop(ball);
 				}
 				else {
+					ball.x -= safetyGapSize;
 					onBallCollideBottom(ball);
 				}
 			}
@@ -137,22 +144,30 @@ G.physicsEngine = (function() {
 
 	function onBallCollideTop(ball) {
 		ball.vel.y = -ball.vel.y;
-		G.syncManager.onUpdateBall(ball);
+		if (!ball.out) {
+			G.syncManager.onUpdateBall(ball, 't');
+		}
+		G.particlesManager.createBallParticles(ball, 90);
 	}
 
 	function onBallCollideBottom(ball) {
 		ball.vel.y = -ball.vel.y;
-		G.syncManager.onUpdateBall(ball);
+		if (!ball.out) {
+			G.syncManager.onUpdateBall(ball, 'b');
+		}
+		G.particlesManager.createBallParticles(ball, 270);
 	}
 
 	function onBallCollideLeft(ball) {
 		ball.vel.x = -ball.vel.x;
-		G.syncManager.onUpdateBall(ball);
+		G.syncManager.onUpdateBall(ball, 'l');
+		G.particlesManager.createBallParticles(ball, 0);
 	}
 
 	function onBallCollideRight(ball) {
 		ball.vel.x = -ball.vel.x;
-		G.syncManager.onUpdateBall(ball);
+		G.syncManager.onUpdateBall(ball, 'r');
+		G.particlesManager.createBallParticles(ball, 180);
 	}
 
 	function updateSceneResizeValues(dec, ratio) {

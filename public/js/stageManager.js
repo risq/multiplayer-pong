@@ -3,6 +3,7 @@ G.stageManager = (function() {
     var renderer,
         stage, 
         scene,
+        particlesContainer,
         stats,
         lastTime = 0, 
         delta = 0,
@@ -10,8 +11,10 @@ G.stageManager = (function() {
         ratio = 1,
         pixelateFilter,
         colorStepFilter,
+        scanFilter,
         checkDeltaInterval,
         startTime,
+        emitter,
         inactive = false,
         isPaused = false;
 
@@ -24,10 +27,46 @@ G.stageManager = (function() {
         document.getElementById('game').appendChild(renderer.view);
         
 
+        var uniforms = {};
+        uniforms.power = { type: '1f', value: 1/1000 };
+        uniforms.noise = { type: '1f', value: 0.2 };
+        
+        //// grain filter..
+        
+        var fragmentSrc = [
+
+            'precision mediump float;',
+            'varying vec2 vTextureCoord;',
+            'varying vec4 vColor;',
+            'uniform sampler2D uSampler;',
+            'uniform float noise;',
+            'uniform float power;',
+
+            'float rand(vec2 co) {',
+            '    return fract(sin(dot(co.xy ,vec2(12.9898,78.233 * noise))) * 43758.5453);',
+            '}',
+            
+            'void main(void) {',
+            '   vec2 cord = vTextureCoord;',
+            '   cord.y += noise * 0.001;',
+
+            '    vec4 color = texture2D(uSampler, vTextureCoord);',
+                
+            '    float diff = (rand(vTextureCoord) - 0.5) * 0.075;',
+            '    color.r += diff;',
+            '    color.g += diff;',
+            '    color.b += diff;',
+                
+            '   gl_FragColor = color;',
+            '}'
+        ];
+
+        scanFilter = new PIXI.AbstractFilter(fragmentSrc, uniforms);
+
         pixelateFilter = new PIXI.PixelateFilter();
-        pixelateFilter.size.x = 2;
-        pixelateFilter.size.y = 2;
-        stage.filters = [pixelateFilter];
+        pixelateFilter.size.x = 3;
+        pixelateFilter.size.y = 3;
+        stage.filters = [pixelateFilter, scanFilter];
 
         stats = new Stats();
         stats.domElement.style.position = 'absolute';
@@ -45,6 +84,9 @@ G.stageManager = (function() {
         G.hudManager.init();
         G.racketsManager.init();
         G.physicsEngine.init();
+        G.particlesManager.init();
+
+        
 
         startTime = G.appManager.getStartTime();
         checkDeltaInterval = setInterval(checkDelta, G.config.checkDeltaIntervalTime);
@@ -53,11 +95,22 @@ G.stageManager = (function() {
     
     function update(time) {
         requestAnimFrame( update );
-        delta = (time - lastTime) / 1000;
-        lastTime = time;
-        stats.update();
-        G.physicsEngine.update(delta);
-        renderer.render(stage);
+        if (time) {
+
+            // scanFilter.uniforms.power.value += (ease -  scanFilter.uniforms.power.value ) * 0.3;
+
+            scanFilter.uniforms.noise.value += 0.1;
+            scanFilter.uniforms.noise.value %= 1;
+            scanFilter.syncUniforms();
+
+
+            delta = (time - lastTime) * 0.001;
+            lastTime = time;
+            stats.update();
+            G.physicsEngine.update(delta);
+            G.particlesManager.update(delta);
+            renderer.render(stage);
+        }
     }
 
     // Manually update physics if requestAnimFrame not available (if tab inactive)

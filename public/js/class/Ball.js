@@ -3,8 +3,10 @@ Ball = function(ID, pos, color, radius) {
     this.ID = ID;
     this.radius = radius || 28;
     this.color  = color  || parseInt(Please.make_color().slice(1), 16);
+    this.colorHex = '#' + this.color.toString(16);
     this.vel = new Vector2(0, 0);
     this.out = false;
+    this.isEmitting = false;
 
     this.physics = false;
 
