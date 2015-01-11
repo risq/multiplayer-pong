@@ -23,7 +23,7 @@ Scene.prototype.init = function() {
 Scene.prototype.drawBounds = function() {
 	var graphics = new PIXI.Graphics();
  	 
-	graphics.beginFill(0x333333);
+	graphics.beginFill(0x222222);
 	// graphics.lineStyle(5, 0xFFFFFF);
 	graphics.drawRect(0, 0, this.baseWidth, this.baseHeight);
 

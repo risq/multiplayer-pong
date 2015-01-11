@@ -154,6 +154,11 @@ G.stageManager = (function() {
         G.physicsEngine.updateSceneResizeValues(dec, ratio);
     }
 
+    function setPixelShaderSize(size) {
+        pixelateFilter.size.x = size;
+        pixelateFilter.size.y = size;
+    }
+
     function getScene() {
         return scene;
     }
@@ -168,6 +173,7 @@ G.stageManager = (function() {
 
     return {
         init: init,
+        setPixelShaderSize: setPixelShaderSize,
         getScene: getScene,
         getStage: getStage,
         getDec: getDec

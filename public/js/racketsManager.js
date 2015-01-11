@@ -13,6 +13,14 @@ G.racketsManager = (function() {
         G.stageManager.getScene().addRacket(rackets.opponent);
     }
 
+    function getLeftRacket() {
+        return rackets.player;
+    }
+    function getRightRacket() {
+        return rackets.opponent;
+    }
+
+
     function getLeftRacketBoundsTopY() {
         return rackets.player.getBounds().y;
     }
@@ -47,6 +55,8 @@ G.racketsManager = (function() {
 
 	return {
 		init: init,
+        getLeftRacket: getLeftRacket,
+        getRightRacket: getRightRacket,
         getLeftRacketBoundsTopY: getLeftRacketBoundsTopY,
         getLeftRacketBoundsLeftX: getLeftRacketBoundsLeftX,
         getLeftRacketBoundsBottomY: getLeftRacketBoundsBottomY,

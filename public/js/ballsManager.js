@@ -75,9 +75,6 @@ G.ballsManager = (function() {
 
     function setBallOut(ball) {
         ball.out = true;
-        setTimeout(function() {
-            removeBall(ball);
-        }, 2000);
     }
 
     function getID() {

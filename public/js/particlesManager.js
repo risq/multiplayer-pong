@@ -23,7 +23,7 @@ G.particlesManager = (function() {
         });
     }
 
-    function createBallParticles(ball, angle) {
+    function createBallCollideParticles(ball, angle) {
         if (!ball.isEmitting) { 
             ball.isEmitting = true;
             emitter = new cloudkid.Emitter(
@@ -37,17 +37,17 @@ G.particlesManager = (function() {
                         "end": 0
                     },
                     "scale": {
-                        "start": 0.9,
-                        "end": 0.4,
+                        "start": 1 / 24 * ball.radius,
+                        "end":   1 / 54 * ball.radius,
                         "minimumScaleMultiplier": 1
                     },
                     "color": {
                         "start": ball.colorHex,
-                        "end": "#ffffff"
+                        "end": "#333333"
                     },
                     "speed": {
-                        "start": 150,
-                        "end": 50
+                        "start": 120 / 16 * ball.radius,
+                        "end": 40 / 16 * ball.radius
                     },
                     "acceleration": {
                         "x": 0,
@@ -62,31 +62,82 @@ G.particlesManager = (function() {
                         "max": 0
                     },
                     "lifetime": {
-                        "min": 0.5,
-                        "max": 0.7
+                        "min": 0.2,
+                        "max": 0.6
                     },
                     "blendMode": "normal",
-                    "frequency": 0.001,
-                    "emitterLifetime": 0.5,
+                    "frequency": 0.01,
+                    "emitterLifetime": 0.3,
                     "maxParticles": 6,
                     "pos": {
                         "x": ball.x + ball.radius / 2,
                         "y": ball.y + ball.radius / 2
                     },
                     "addAtBack": false,
-                    "spawnType": "rect",
-                    "spawnRect": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 20,
-                        "h": 20
-                    }
+                    "spawnType": "point"
                 });
             emitter.emit = true;
             emitter.ballID = ball.ID;
 
             emitters.push(emitter);
         }
+    }
+
+    function createBallExplodeParticles(ball) {
+            emitter = new cloudkid.Emitter(
+                particlesContainer,
+
+                // The collection of particle images to use
+                [PIXI.Texture.fromImage('textures/pixel24.png')],
+                {
+                    "alpha": {
+                        "start": 0.8,
+                        "end": 0
+                    },
+                    "scale": {
+                        "start": 1 / 24 * ball.radius,
+                        "end":   1 / 54 * ball.radius,
+                        "minimumScaleMultiplier": 1
+                    },
+                    "color": {
+                        "start": ball.colorHex,
+                        "end": "#333333"
+                    },
+                    "speed": {
+                        "start": 20 * ball.radius,
+                        "end": 40 / 16 * ball.radius
+                    },
+                    "acceleration": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "startRotation": {
+                        "min": 0,
+                        "max": 360
+                    },
+                    "rotationSpeed": {
+                        "min": 0,
+                        "max": 0
+                    },
+                    "lifetime": {
+                        "min": 0.1,
+                        "max": 0.5
+                    },
+                    "blendMode": "normal",
+                    "frequency": 0.01,
+                    "emitterLifetime": 0.5,
+                    "maxParticles": 32,
+                    "pos": {
+                        "x": ball.x + ball.radius / 2,
+                        "y": ball.y + ball.radius / 2
+                    },
+                    "addAtBack": false,
+                    "spawnType": "point"
+                });
+            emitter.emit = true;
+            emitter.ballID = ball.ID;
+
+            emitters.push(emitter);
     }
 
     function getEmitters() {
@@ -98,7 +149,8 @@ G.particlesManager = (function() {
     return {
         init: init,
         update: update,
-        createBallParticles: createBallParticles,
+        createBallCollideParticles: createBallCollideParticles,
+        createBallExplodeParticles: createBallExplodeParticles,
         getEmitters: getEmitters
     };
 })();

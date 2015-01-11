@@ -13,16 +13,16 @@ G.syncManager = (function() {
             G.ballsManager.updateBall(data);
 
             if (data.collidingDirection === 't') {
-                G.particlesManager.createBallParticles(G.ballsManager.getBall(data.ID), 90);
+                G.particlesManager.createBallCollideParticles(G.ballsManager.getBall(data.ID), 90);
             }
             else if (data.collidingDirection === 'b') {
-                G.particlesManager.createBallParticles(G.ballsManager.getBall(data.ID), 270);
+                G.particlesManager.createBallCollideParticles(G.ballsManager.getBall(data.ID), 270);
             }
             else if (data.collidingDirection === 'l') {
-                G.particlesManager.createBallParticles(G.ballsManager.getBall(data.ID), 0);
+                G.particlesManager.createBallCollideParticles(G.ballsManager.getBall(data.ID), 0);
             }
             else if (data.collidingDirection === 'r') {
-                G.particlesManager.createBallParticles(G.ballsManager.getBall(data.ID), 180);
+                G.particlesManager.createBallCollideParticles(G.ballsManager.getBall(data.ID), 180);
             }
         }
         else if (data.event === 'setBallOut') {

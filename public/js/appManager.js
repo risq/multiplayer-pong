@@ -29,7 +29,7 @@ G.appManager = (function() {
         state = 'ready';
 
         if (isHost) {
-            G.ballsManager.createBalls(44, null, 500, 100, 4);
+            G.ballsManager.createBalls(16, null, 650, 50, 1);
         }
     }
 

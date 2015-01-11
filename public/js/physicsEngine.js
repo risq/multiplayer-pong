@@ -11,9 +11,9 @@ G.physicsEngine = (function() {
     function init() {
    		wallsBounds = new PIXI.Rectangle(
 			0, 
-			safetyGapSize * 0.5 * currentRatio, 
-			(G.config.baseSceneWidth) * currentRatio,
-			(G.config.baseSceneHeight - safetyGapSize) * currentRatio);
+			0, 
+			G.config.baseSceneWidth * currentRatio,
+			G.config.baseSceneHeight * currentRatio);
     }
 
     function update(delta) {
@@ -37,8 +37,9 @@ G.physicsEngine = (function() {
 			if (ball.vel.x >= -50 && ball.vel.x <= 50) {
 				ball.vel.x = ball.vel.x + ball.vel.x * 0.1;
 			}
-			checkBallCollision(ball)
+			checkBallCollision(ball);
 			updateObjectPos(ball);
+			applyMagnetForce(ball);
 		}
 	}
 
@@ -81,7 +82,7 @@ G.physicsEngine = (function() {
 					bounds.y < G.racketsManager.getLeftRacketBoundsBottomY()) {
 
 					ball.x = (G.racketsManager.getLeftRacketBoundsRightX() - currentDec.x)  / currentRatio;
-					onBallCollideLeft(ball);
+					onBallCollideLeft(ball);				
 				}
 				else {
 					G.ballsManager.onBallOut(ball);
@@ -106,10 +107,14 @@ G.physicsEngine = (function() {
 
 		// If ball is out, test collision with top & bottom of rackets
 		else {
+			if (bounds.x + bounds.width + ball.vel.x * currentDelta < G.racketsManager.getLeftRacketBoundsLeftX() ||
+				bounds.x + ball.vel.x * currentDelta > G.racketsManager.getRightRacketBoundsRightX()) {
+				G.particlesManager.createBallExplodeParticles(ball);
+				G.ballsManager.removeBall(ball);
+			}
 
 			// Left racket
-			if (bounds.x + ball.vel.x * currentDelta <= G.racketsManager.getLeftRacketBoundsRightX() &&
-				bounds.x + bounds.width + ball.vel.x * currentDelta >= G.racketsManager.getLeftRacketBoundsLeftX() &&
+			else if (bounds.x + ball.vel.x * currentDelta <= G.racketsManager.getLeftRacketBoundsRightX() &&
 				bounds.y + bounds.height > G.racketsManager.getLeftRacketBoundsTopY() && 
 				bounds.y < G.racketsManager.getLeftRacketBoundsBottomY()) {
 
@@ -125,7 +130,6 @@ G.physicsEngine = (function() {
 
 			// Right racket
 			else if (bounds.x + ball.vel.x * currentDelta <= G.racketsManager.getRightRacketBoundsRightX() &&
-				bounds.x + bounds.width + ball.vel.x * currentDelta >= G.racketsManager.getRightRacketBoundsLeftX() &&
 				bounds.y + bounds.height > G.racketsManager.getRightRacketBoundsTopY() && 
 				bounds.y < G.racketsManager.getRightRacketBoundsBottomY()) {
 
@@ -141,13 +145,12 @@ G.physicsEngine = (function() {
 		}
 	}
 
-
 	function onBallCollideTop(ball) {
 		ball.vel.y = -ball.vel.y;
 		if (!ball.out) {
 			G.syncManager.onUpdateBall(ball, 't');
 		}
-		G.particlesManager.createBallParticles(ball, 90);
+		G.particlesManager.createBallCollideParticles(ball, 90);
 	}
 
 	function onBallCollideBottom(ball) {
@@ -155,19 +158,27 @@ G.physicsEngine = (function() {
 		if (!ball.out) {
 			G.syncManager.onUpdateBall(ball, 'b');
 		}
-		G.particlesManager.createBallParticles(ball, 270);
+		G.particlesManager.createBallCollideParticles(ball, 270);
 	}
 
 	function onBallCollideLeft(ball) {
 		ball.vel.x = -ball.vel.x;
 		G.syncManager.onUpdateBall(ball, 'l');
-		G.particlesManager.createBallParticles(ball, 0);
+		G.particlesManager.createBallCollideParticles(ball, 0);
 	}
 
 	function onBallCollideRight(ball) {
 		ball.vel.x = -ball.vel.x;
 		G.syncManager.onUpdateBall(ball, 'r');
-		G.particlesManager.createBallParticles(ball, 180);
+		G.particlesManager.createBallCollideParticles(ball, 180);
+	}
+
+	function applyMagnetForce(ball) {
+		if (ball.vel.x < 0) {
+			// ball.vel.y = (ball.vel.y - (G.racketsManager.getLeftRacket().getCenter().y - ball.y) * 0.1);
+			// ball.vel.y = ball.vel.y + (1/(ball.y - G.racketsManager.getLeftRacket().getCenter().y)) * 10
+			// console.log(ball.y - G.racketsManager.getLeftRacket().getCenter().y);
+		}
 	}
 
 	function updateSceneResizeValues(dec, ratio) {
@@ -175,7 +186,6 @@ G.physicsEngine = (function() {
 		currentRatio = ratio;
 
 		if (wallsBounds) {
-			wallsBounds.y = safetyGapSize * 0.5 * currentRatio;
 			wallsBounds.height = G.config.baseSceneHeight * currentRatio;
 		}
 	}
