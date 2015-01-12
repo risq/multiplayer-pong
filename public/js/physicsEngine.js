@@ -112,7 +112,7 @@ G.physicsEngine = (function() {
 					ball.x = (G.racketsManager.getLeftRacketBoundsRightX() - currentDec.x) / currentRatio;
 					onBallCollideLeft(ball);				
 				}
-				else {
+				else if (bounds.x < G.racketsManager.getLeftRacketBoundsLeftX()) {
 					G.ballsManager.onBallOut(ball);
 				}
 			}
@@ -126,7 +126,7 @@ G.physicsEngine = (function() {
 					ball.x = (G.racketsManager.getRightRacketBoundsLeftX() - currentDec.x - bounds.width) / currentRatio;
 					onBallCollideRight(ball);
 				}
-				else {
+				else if (bounds.x + bounds.width > G.racketsManager.getRightRacketBoundsLeftX()) {
 					G.ballsManager.onBallOut(ball);
 				}
 			}
@@ -135,14 +135,14 @@ G.physicsEngine = (function() {
 		// If ball is out, test collision with top & bottom of rackets
 		else {
 			// Ball needs to be destroy
-			if (bounds.x + bounds.width + ball.vel.x * currentDelta < G.racketsManager.getLeftRacketBoundsLeftX() - 40 * currentRatio ||
-				bounds.x + ball.vel.x * currentDelta > G.racketsManager.getRightRacketBoundsRightX() + 40 * currentRatio) {
+			if (bounds.x + bounds.width < G.racketsManager.getLeftRacketBoundsLeftX() - 40 * currentRatio ||
+				bounds.x > G.racketsManager.getRightRacketBoundsRightX() + 40 * currentRatio) {
 
 				G.ballsManager.onBallOutDestroy(ball);
 			}
 
 			// Left racket
-			else if (bounds.x + ball.vel.x * currentDelta < G.racketsManager.getLeftRacketBoundsRightX() &&
+			else if (bounds.x < G.racketsManager.getLeftRacketBoundsRightX() &&
 				bounds.y + bounds.height > G.racketsManager.getLeftRacketBoundsTopY() && 
 				bounds.y < G.racketsManager.getLeftRacketBoundsBottomY()) {
 
@@ -151,21 +151,21 @@ G.physicsEngine = (function() {
 				// collide top of racket
 				if (ball.vel.y > 0) {
 					if (ball.y < G.racketsManager.getLeftRacket().y) {
-					onBallCollideTop(ball);
+						onBallCollideTop(ball);
 					}
-						ball.y = (G.racketsManager.getLeftRacketBoundsTopY() - currentDec.y - bounds.height) / currentRatio - 2 * safetyGapSize;
+					ball.y = (G.racketsManager.getLeftRacketBoundsTopY() - currentDec.y - bounds.height) / currentRatio - 2 * safetyGapSize;
 				}
 				// collide bottom of racket
 				else if (ball.vel.y < 0) {
 					if (ball.y > G.racketsManager.getLeftRacket().y) {
-					onBallCollideBottom(ball);
+						onBallCollideBottom(ball);
 					}
-						ball.y = (G.racketsManager.getLeftRacketBoundsBottomY() - currentDec.y) / currentRatio + 2 * safetyGapSize;
+					ball.y = (G.racketsManager.getLeftRacketBoundsBottomY() - currentDec.y) / currentRatio + 2 * safetyGapSize;
 				}
 			}
 
 			// Right racket
-			else if (bounds.x + ball.vel.x * currentDelta > G.racketsManager.getRightRacketBoundsLeftX() &&
+			else if (bounds.x + bounds.width > G.racketsManager.getRightRacketBoundsLeftX() &&
 				bounds.y + bounds.height > G.racketsManager.getRightRacketBoundsTopY() && 
 				bounds.y < G.racketsManager.getRightRacketBoundsBottomY()) {
 
