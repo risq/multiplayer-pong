@@ -12,8 +12,8 @@ G.physicsEngine = (function() {
    		wallsBounds = new PIXI.Rectangle(
 			0, 
 			0, 
-			G.config.baseSceneWidth * currentRatio,
-			G.config.baseSceneHeight * currentRatio);
+			G.config.baseSceneWidth,
+			G.config.baseSceneHeight);
     }
 
     function update(delta) {
@@ -74,10 +74,11 @@ G.physicsEngine = (function() {
 
 
 		// Test top collision
-		if (bounds.localY + ball.vel.y * currentDelta <= wallsBounds.y || 
-			bounds.localY <= wallsBounds.y) {
+		if (ball.y + ball.vel.y * currentDelta <= wallsBounds.y || 
+			ball.y <= wallsBounds.y) {
 
-			ball.y = wallsBounds.y / currentRatio + safetyGapSize;
+			ball.y = wallsBounds.y;
+
 			if (ball.out) {
 				G.ballsManager.onBallOutDestroy(ball);
 			}
@@ -87,10 +88,11 @@ G.physicsEngine = (function() {
 		}
 
 		// Test bottom collision
-		else if (bounds.localY + bounds.height + ball.vel.y * currentDelta >= wallsBounds.y + wallsBounds.height || 
-				 bounds.localY + bounds.height >= wallsBounds.y + wallsBounds.height) {
+		else if (ball.y + bounds.height + ball.vel.y * currentDelta >= wallsBounds.y + wallsBounds.height || 
+				 ball.y + bounds.height >= wallsBounds.y + wallsBounds.height) {
 
-			ball.y = wallsBounds.y / currentRatio - ball.radius - safetyGapSize + wallsBounds.height / currentRatio;
+			ball.y = wallsBounds.y + wallsBounds.height - ball.radius;
+
 			if (ball.out) {
 				G.ballsManager.onBallOutDestroy(ball);
 			}
@@ -230,10 +232,6 @@ G.physicsEngine = (function() {
 	function updateSceneResizeValues(dec, ratio) {
 		currentDec = dec;
 		currentRatio = ratio;
-
-		if (wallsBounds) {
-			wallsBounds.height = G.config.baseSceneHeight * currentRatio;
-		}
 	}
 
 	return {
