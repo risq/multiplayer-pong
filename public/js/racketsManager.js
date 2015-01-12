@@ -48,6 +48,10 @@ G.racketsManager = (function() {
         rackets[opponentSide].setMovingToY(y);
     }
 
+    function movePlayerRacketBy(y) {
+        movePlayerRacketTo(rackets[playerSide].y + y);
+    }
+
     function getLeftRacket() {
         return rackets.left;
     }
@@ -94,6 +98,7 @@ G.racketsManager = (function() {
         setPlayerSide: setPlayerSide,
         movePlayerRacketTo: movePlayerRacketTo,
         moveOpponentRacketTo: moveOpponentRacketTo,
+        movePlayerRacketBy: movePlayerRacketBy,
         getLeftRacket: getLeftRacket,
         getRightRacket: getRightRacket,
         getLeftRacketBoundsTopY: getLeftRacketBoundsTopY,

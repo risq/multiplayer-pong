@@ -6,7 +6,6 @@ Ball = function(ID, pos, color, radius) {
     this.colorHex = '#' + this.color.toString(16);
     this.vel = new Vector2(0, 0);
     this.out = false;
-    this.isEmitting = false;
 
     this.physics = false;
 

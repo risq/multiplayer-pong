@@ -39,7 +39,7 @@ G.appManager = (function() {
         G.racketsManager.resetRacketsPositions();
 
         if (isHost) {
-            G.ballsManager.createBalls(16, null, 650, 4000, 1);
+            G.ballsManager.createBalls(48, null, 650, 500, 4);
             // G.ballsManager.createBall({
             //     pos: new Vector2(60, 10), 
             //     vel: new Vector2(-40, 300)
