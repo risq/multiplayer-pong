@@ -12,7 +12,7 @@ function mobileInit() {
 
 		var address = data.url+":"+data.port;
 
-		$.getScript( address+"/socket.io/socket.io.js" )
+		$.getScript(address+"/socket.io/socket.io.js" )
 			.done(function( ) {
 				MobileController.init(address);
 			});
