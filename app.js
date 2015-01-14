@@ -10,7 +10,7 @@ var Player = require('./src/class/Player');
 
 app.use(express.static(__dirname + '/public'));
 
-server.listen(config.port, config.url);
+server.listen((process.env.PORT || 5000), localhost);
 
 //for security
 try {
