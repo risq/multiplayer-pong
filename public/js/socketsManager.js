@@ -11,7 +11,7 @@ G.socketsManager = (function() {
             serverConfig = data;
             var address = serverConfig.url + ":" + serverConfig.port;
 
-            $.getScript('http://' + address + '/socket.io/socket.io.js')
+            $.getScript(address + '/socket.io/socket.io.js')
                 .done(function( ) {
                     initSocket(address);
                 });
