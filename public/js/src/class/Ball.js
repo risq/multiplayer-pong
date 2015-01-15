@@ -31,3 +31,4 @@ Ball.prototype.disablePhysics = function() {
 };
 
 
+module.exports = Ball;

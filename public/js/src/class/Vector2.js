@@ -161,3 +161,5 @@ Vector2.prototype = {
 	}
 
 };
+
+module.exports = Vector2;

@@ -4,13 +4,15 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+var port = process.env.PORT || 80;
+
 global.deviceConnectionsManager = require('./src/deviceConnectionsManager');
 global.gameRoomsManager = require('./src/gameRoomsManager');
 var Player = require('./src/class/Player');
 
 app.use(express.static(__dirname + '/public'));
 
-server.listen((process.env.PORT || 5000));
+server.listen(port);
 
 //for security
 try {
@@ -18,7 +20,7 @@ try {
     deviceConnectionsManager.onPlayerJoin(function (deviceConnection) {
         gameRoomsManager.findGameRoom(new Player(deviceConnection));
     });
-    console.log('[server started on port ' + config.port + ']');
+    console.log('[server started on port ' + port + ']');
 } catch (err) {
     console.log(err);
 }

@@ -38,3 +38,4 @@ Hud.prototype.setDebug2Text = function(text) {
 };
 
 
+module.exports = Hud;

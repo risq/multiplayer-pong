@@ -36,44 +36,42 @@ Scene.prototype.getCenter = function() {
 	return new Vector2(this.baseWidth / 2, this.baseHeight / 2);
 };
 
-Scene.prototype.clearObjectsOfType = function(type) {
-	var objects = _.filter(this.children, function(object) { 
-		return object instanceof type;
-	});
+// Scene.prototype.clearObjectsOfType = function(type) {
+// 	var objects = _.filter(this.children, function(object) { 
+// 		return object instanceof type;
+// 	});
 
-	objects.forEach(function(object) {
-		this.removeChild(object);
-	}.bind(this));
-}
+// 	objects.forEach(function(object) {
+// 		this.removeChild(object);
+// 	}.bind(this));
+// };
 
 Scene.prototype.clearBalls = function() {
 	this.ballsContainer.removeChildren();
-}
+};
 
 Scene.prototype.addBall = function(ball) {
 	this.ballsContainer.addChild(ball);
-}
+};
 
 Scene.prototype.removeBall = function(ball) {
 	this.ballsContainer.removeChild(ball);
-}
+};
 
 Scene.prototype.addRacket = function(racket) {
 	this.racketsContainer.addChild(racket);
-}
+};
 
 Scene.prototype.getParticlesContainer = function() {
 	return this.particlesContainer;
-}
+};
 
 Scene.prototype.getRacketsContainer = function() {
 	return this.racketsContainer;
-}
+};
 
 Scene.prototype.getBallsContainer = function() {
 	return this.ballsContainer;
-}
+};
 
-
-
-
+module.exports = Scene;
