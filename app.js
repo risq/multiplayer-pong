@@ -10,7 +10,7 @@ global.deviceConnectionsManager = require('./src/deviceConnectionsManager');
 global.gameRoomsManager = require('./src/gameRoomsManager');
 var Player = require('./src/class/Player');
 
-app.use(express.static(__dirname + '/dist'));
+app.use(express.static(__dirname + '/public'));
 
 server.listen(port);
 

@@ -15,6 +15,7 @@ global.socketsManager 			= require('./socketsManager');
 global.stageManager 			= require('./stageManager');
 global.syncManager 				= require('./syncManager');
 
+console.log('hello')
 
 
 appManager.init();

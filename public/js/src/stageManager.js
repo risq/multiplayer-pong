@@ -13,6 +13,7 @@ var renderer,
     background,
     colorStepFilter,
     scanFilter,
+    rgbSplitFilter,
     checkDeltaInterval,
     startTime,
     emitter,
@@ -64,6 +65,10 @@ function init() {
 
     scanFilter = new PIXI.AbstractFilter(fragmentSrc, uniforms);
 
+    rgbSplitFilter = new PIXI.RGBSplitFilter();
+    setRGBSplitFilterSize(3);
+    
+
     pixelateFilter = new PIXI.PixelateFilter();
     pixelateFilter.size.x = 3;
     pixelateFilter.size.y = 3;
@@ -86,7 +91,7 @@ function init() {
     
     window.onresize = updateGameSize;
 
-    stage.filters = [pixelateFilter, scanFilter];
+    stage.filters = [pixelateFilter, rgbSplitFilter, scanFilter];
     // stage.filters = [pixelateFilter];
 
     hudManager.init();
@@ -111,6 +116,7 @@ function update(time) {
         scanFilter.uniforms.noise.value %= 1;
         scanFilter.syncUniforms();
 
+        setRGBSplitFilterSize(time);
 
         delta = (time - lastTime) * 0.001;
         lastTime = time;
@@ -169,6 +175,22 @@ function updateGameSize() {
 function setPixelShaderSize(size) {
     pixelateFilter.size.x = size;
     pixelateFilter.size.y = size;
+}
+
+function setRGBSplitFilterSize(time) {
+    var size = Math.sin(time/160) * 2;
+    rgbSplitFilter.red = {
+        x: size,
+        y: size
+    };
+    rgbSplitFilter.green = {
+        x: -size,
+        y: size
+    };
+    rgbSplitFilter.blue = {
+        x: size,
+        y: -size
+    };
 }
 
 function getScene() {
