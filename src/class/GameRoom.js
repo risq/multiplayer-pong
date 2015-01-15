@@ -13,7 +13,7 @@ function GameRoom(ID) {
 
 var p = GameRoom.prototype;
 
-p.join = function(player) {
+p.join = function(player) { 
 
     //console.log('a player try to join game room #' + this.ID);
 
