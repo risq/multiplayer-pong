@@ -44,18 +44,30 @@ gulp.task('bundle:dev', ['lint', 'browserify:dev']);
 
 gulp.task('bundle:build', ['lint', 'lintServer', 'browserify:build']);
 
-gulp.task('clean', function (cb) {
+gulp.task('clean:build', function (cb) {
   del(['dist/'], cb);
 });
 
-gulp.task('copy', function() {
+gulp.task('clean:cordova', function (cb) {
+  del(['cordova/www/**/*.*'], cb);
+});
+
+gulp.task('copy:build', function() {
     gulp.src(['./public/**/*.*', '!./public/js/**/*.*'], {base: './public'})
         .pipe(gulp.dest('./dist'));
 });
 
+gulp.task('copy:cordova', function() {
+    gulp.src(['./dist/**/*.*'], {base: './dist'})
+        .pipe(gulp.dest('./cordova/www'));
+});
 
-gulp.task('build', function() {
-    runSequence('clean', ['bundle:build', 'copy']);
+gulp.task('build', function(cb) {
+    runSequence('clean:build', ['bundle:build', 'copy:build'], cb);
+});
+
+gulp.task('buildCordova', function() {
+    runSequence('clean:cordova', 'build', 'copy:cordova');
 });
 
 gulp.task('watch', ['bundle:dev'], function() {

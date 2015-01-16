@@ -5,13 +5,14 @@ var socket,
 
 function init() {
 
-	$.getJSON("../config.json", function(data) {
+	$.getJSON("config.json", function(data) {
         serverConfig = data;
         var address = serverConfig.url + ":" + serverConfig.port;
 
+        console.log(address);
         $.getScript('http://' + address + '/socket.io/socket.io.js')
             .done(function( ) {
-                initSocket(address);
+                initSocket('http://' + address);
             });
     });
 
@@ -20,6 +21,7 @@ function init() {
 function initSocket(address) {
 
     socket = io.connect(address);
+    console.log('init socket', socket);
 
     sendHostRequest();
     bindSocketEvents();

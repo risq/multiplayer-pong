@@ -15,9 +15,13 @@ global.socketsManager 			= require('./socketsManager');
 global.stageManager 			= require('./stageManager');
 global.syncManager 				= require('./syncManager');
 
-console.log('hello')
 
+if ( window.location.protocol === "file:" ) {
+	document.addEventListener("deviceready", onDeviceReady, false);
+} else {
+	appManager.init();
+}
 
-appManager.init();
-
-
+function onDeviceReady() {
+	appManager.init();
+}
