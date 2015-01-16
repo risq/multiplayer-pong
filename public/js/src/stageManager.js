@@ -91,7 +91,7 @@ function init() {
     
     window.onresize = updateGameSize;
 
-    stage.filters = [rgbSplitFilter, pixelateFilter];
+    stage.filters = [pixelateFilter, rgbSplitFilter];
     // stage.filters = [pixelateFilter];
 
     hudManager.init();
