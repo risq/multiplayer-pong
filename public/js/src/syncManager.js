@@ -1,46 +1,64 @@
 function init() {
-	
+
 }
 
-function onSync(data) {
-    // console.log('sync', data);
-    if (data.event === 'createBall') {
-        ballsManager.createBall(data);
-    }
-    else if (data.event === 'updateBall') {
-        ballsManager.updateBall(data);
+function onSync( data ) {
 
-        if (data.collidingDirection === 't') {
-            particlesManager.createBallCollideParticles(ballsManager.getBall(data.ID), 90);
+    if ( data.event === 'createBall' ) {
+
+        ballsManager.createBall( data );
+
+    } else if ( data.event === 'updateBall' ) {
+
+        ballsManager.updateBall( data );
+
+        if ( data.collidingDirection === 't' ) {
+
+            particlesManager.createBallCollideParticles( ballsManager.getBall( data.ID ), 90 );
+
+        } else if ( data.collidingDirection === 'b' ) {
+
+            particlesManager.createBallCollideParticles( ballsManager.getBall( data.ID ), 270 );
+
+        } else if ( data.collidingDirection === 'l' ) {
+
+            particlesManager.createBallCollideParticles( ballsManager.getBall( data.ID ), 0 );
+
+        } else if ( data.collidingDirection === 'r' ) {
+
+            particlesManager.createBallCollideParticles( ballsManager.getBall( data.ID ), 180 );
+
         }
-        else if (data.collidingDirection === 'b') {
-            particlesManager.createBallCollideParticles(ballsManager.getBall(data.ID), 270);
+
+    } else if ( data.event === 'setBallOut' ) {
+
+        var outBall = ballsManager.getBall( data.ID );
+
+        if ( outBall ) {
+
+            ballsManager.setBallOut( outBall );
+
         }
-        else if (data.collidingDirection === 'l') {
-            particlesManager.createBallCollideParticles(ballsManager.getBall(data.ID), 0);
+
+    } else if ( data.event === 'destroyBall' ) {
+
+        var destroyedBall = ballsManager.getBall( data.ID );
+
+        if ( destroyedBall ) {
+
+            ballsManager.destroyBall( destroyedBall );
+
         }
-        else if (data.collidingDirection === 'r') {
-            particlesManager.createBallCollideParticles(ballsManager.getBall(data.ID), 180);
-        }
-    }
-    else if (data.event === 'setBallOut') {
-        var outBall = ballsManager.getBall(data.ID);
-        if (outBall) {
-            ballsManager.setBallOut(outBall);
-        }
-    }
-    else if (data.event === 'destroyBall') {
-        var destroyedBall = ballsManager.getBall(data.ID);
-        if (destroyedBall) {
-            ballsManager.destroyBall(destroyedBall);
-        }
-    }
-    else if (data.event === 'racketMove') {
-        racketsManager.moveOpponentRacketTo(data.y);
+
+    } else if ( data.event === 'racketMove' ) {
+
+        racketsManager.moveOpponentRacketTo( data.y, data.instant );
+
     }
 }
 
-function onCreateBall(ball) {
+function onCreateBall( ball ) {
+
     var data = {
         event: 'createBall',
         ID: ball.ID,
@@ -54,10 +72,12 @@ function onCreateBall(ball) {
             y: ball.vel.y,
         }
     };
-    socketsManager.emit('sync', data);
+    socketsManager.emit( 'sync', data );
+
 }
 
-function onUpdateBall(ball, collidingDirection) {
+function onUpdateBall( ball, collidingDirection ) {
+
     var data = {
         event: 'updateBall',
         ID: ball.ID,
@@ -71,35 +91,42 @@ function onUpdateBall(ball, collidingDirection) {
         },
         collidingDirection: collidingDirection
     };
-    socketsManager.emit('sync', data);
+    socketsManager.emit( 'sync', data );
+
 }
 
-function onBallOut(ball) {
+function onBallOut( ball ) {
+
     var data = {
         event: 'setBallOut',
         ID: ball.ID
     };
-    socketsManager.emit('sync', data);
+    socketsManager.emit( 'sync', data );
+
 }
 
-function onBallDestroy(ball) {
+function onBallDestroy( ball ) {
+
     var data = {
         event: 'destroyBall',
         ID: ball.ID
     };
-    socketsManager.emit('sync', data);
+    socketsManager.emit( 'sync', data );
 }
 
-function onRacketSetMovingToY(y) {
+function onRacketSetMovingToY( y, instant ) {
+
     var data = {
         event: 'racketMove',
-        y: y
+        y: y,
+        instant: instant
     };
-    socketsManager.emit('sync', data);
+    socketsManager.emit( 'sync', data );
+    
 }
 
 module.exports = {
-	init: init,
+    init: init,
     onSync: onSync,
     onCreateBall: onCreateBall,
     onUpdateBall: onUpdateBall,

@@ -37,9 +37,13 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.Point;
+import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -47,6 +51,7 @@ import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -216,8 +221,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
         } else if (preferences.getBoolean("Fullscreen", false)) {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            toggleFullscreen(getWindow());
         } else {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
@@ -288,6 +292,27 @@ public class CordovaActivity extends Activity implements CordovaInterface {
      */
     @Override public Activity getActivity() {
         return this;
+    }
+
+    /**
+     * Toggle fullscreen for window.
+     */
+    @SuppressLint("NewApi")
+    private void toggleFullscreen(Window window) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            final int uiOptions =
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+
+            window.getDecorView().setSystemUiVisibility(uiOptions);
+        } else {
+            window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
     }
 
     /**
@@ -410,7 +435,9 @@ public class CordovaActivity extends Activity implements CordovaInterface {
 
         // If loadingDialog property, then show the App loading dialog for first page of app
         String loading = null;
-        if ((this.appView == null) || !this.appView.canGoBack()) {
+        if ((this.appView == null) ||
+                this.appView.getNavigationHistory() == null ||
+                !this.appView.getNavigationHistory().canGoBack()) {
             loading = preferences.getString("LoadingDialog", null);
         }
         else {
@@ -456,7 +483,9 @@ public class CordovaActivity extends Activity implements CordovaInterface {
      */
     @Deprecated // Call method on appView directly.
     public void clearHistory() {
-        this.appView.clearHistory();
+        if (this.appView.getNavigationHistory() != null) {
+            this.appView.getNavigationHistory().clear();
+        }
     }
 
     /**
@@ -607,6 +636,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
     @Override
     protected void onResume() {
         super.onResume();
+
         LOG.d(TAG, "Resuming the App");
         
         if (this.activityState == ACTIVITY_STARTING) {
@@ -620,6 +650,11 @@ public class CordovaActivity extends Activity implements CordovaInterface {
         // Force window to have focus, so application always
         // receive user input. Workaround for some devices (Samsung Galaxy Note 3 at least)
         this.getWindow().getDecorView().requestFocus();
+
+        // When back from background, we need to reset fullscreen mode.
+        if(getBooleanProperty("FullScreen", false)) {
+            toggleFullscreen(getWindow());
+        }
 
         this.appView.handleResume(this.keepRunning, this.activityResultKeepRunning);
 
@@ -640,7 +675,6 @@ public class CordovaActivity extends Activity implements CordovaInterface {
     @Override
     public void onDestroy() {
         LOG.d(TAG, "CordovaActivity.onDestroy()");
-        super.onDestroy();
 
         // hide the splash screen to avoid leaking a window
         this.removeSplashScreen();
@@ -651,6 +685,8 @@ public class CordovaActivity extends Activity implements CordovaInterface {
         else {
             this.activityState = ACTIVITY_EXITING; 
         }
+
+        super.onDestroy();
     }
 
     /**
@@ -761,9 +797,11 @@ public class CordovaActivity extends Activity implements CordovaInterface {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         LOG.d(TAG, "Incoming Result");
         super.onActivityResult(requestCode, resultCode, intent);
+        if (this.appView != null)
+            this.appView.onActivityResult(requestCode, resultCode, intent);
         Log.d(TAG, "Request code = " + requestCode);
         if (appView != null && requestCode == CordovaChromeClient.FILECHOOSER_RESULTCODE) {
-        	ValueCallback<Uri> mUploadMessage = this.appView.getWebChromeClient().getValueCallback();
+                ValueCallback<Uri> mUploadMessage = this.appView.getWebChromeClient().getValueCallback();
             Log.d(TAG, "did we get here?");
             if (null == mUploadMessage)
                 return;
@@ -913,6 +951,9 @@ public class CordovaActivity extends Activity implements CordovaInterface {
     }
 
     protected Dialog splashDialog;
+    protected OrientationEventListener splashOrientationListener;
+    protected int mCurrentOrientation;
+    protected LinearLayout splashLayout;
 
     /**
      * Removes the Dialog that displays the splash screen
@@ -921,7 +962,46 @@ public class CordovaActivity extends Activity implements CordovaInterface {
         if (splashDialog != null && splashDialog.isShowing()) {
             splashDialog.dismiss();
             splashDialog = null;
+            splashOrientationListener.disable();
+            splashOrientationListener = null;
         }
+    }
+
+    @SuppressLint("NewApi")
+    protected int getScreenOrientation() {
+        // getResources().getConfiguration().orientation returns wrong value in some devices.
+        // Below is another way to calculate screen orientation.
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB_MR2) {
+            size.set(display.getWidth(), display.getHeight());
+        } else {
+            display.getSize(size);
+        }
+
+        int orientation;
+        if (size.x < size.y) {
+            orientation = Configuration.ORIENTATION_PORTRAIT;
+        } else {
+            orientation = Configuration.ORIENTATION_LANDSCAPE;
+        }
+        return orientation;
+    }
+
+    protected LinearLayout getSplashLayout() {
+        // Get reference to display
+        Display display = getWindowManager().getDefaultDisplay();
+
+        LinearLayout root = new LinearLayout(getActivity());
+        root.setMinimumHeight(display.getHeight());
+        root.setMinimumWidth(display.getWidth());
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setBackgroundColor(getIntegerProperty("backgroundColor", Color.BLACK));
+        root.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT, 0.0F));
+        root.setBackgroundResource(splashscreen);
+
+        return root;
     }
 
     /**
@@ -933,30 +1013,37 @@ public class CordovaActivity extends Activity implements CordovaInterface {
 
         Runnable runnable = new Runnable() {
             public void run() {
-                // Get reference to display
-                Display display = getWindowManager().getDefaultDisplay();
-
                 // Create the layout for the dialog
-                LinearLayout root = new LinearLayout(that.getActivity());
-                root.setMinimumHeight(display.getHeight());
-                root.setMinimumWidth(display.getWidth());
-                root.setOrientation(LinearLayout.VERTICAL);
-                root.setBackgroundColor(preferences.getInteger("backgroundColor", Color.BLACK));
-                root.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT, 0.0F));
-                root.setBackgroundResource(that.splashscreen);
-                
+                splashLayout = getSplashLayout();
                 // Create and show the dialog
                 splashDialog = new Dialog(that, android.R.style.Theme_Translucent_NoTitleBar);
                 // check to see if the splash screen should be full screen
-                if ((getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_FULLSCREEN)
-                        == WindowManager.LayoutParams.FLAG_FULLSCREEN) {
-                    splashDialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                            WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                if(getBooleanProperty("FullScreen", false))
+                {
+                    toggleFullscreen(splashDialog.getWindow());
                 }
-                splashDialog.setContentView(root);
+
+                splashDialog.setContentView(splashLayout);
                 splashDialog.setCancelable(false);
                 splashDialog.show();
+
+                mCurrentOrientation = getScreenOrientation();
+                splashOrientationListener = new OrientationEventListener(that,
+                        SensorManager.SENSOR_DELAY_NORMAL) {
+                    public void onOrientationChanged(int ori) {
+                        if (splashDialog == null || !splashDialog.isShowing()) {
+                            return;
+                        }
+                        // Reset contentView of splashDialog when orientation changed.
+                        int orientation = getScreenOrientation();
+                        if (orientation != mCurrentOrientation) {
+                            splashLayout = getSplashLayout();
+                            splashDialog.setContentView(splashLayout);
+                            mCurrentOrientation = orientation;
+                        }
+                    }
+                };
+                splashOrientationListener.enable();
 
                 // Set Runnable to remove splash screen just in case
                 final Handler handler = new Handler();
@@ -973,12 +1060,12 @@ public class CordovaActivity extends Activity implements CordovaInterface {
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event)
     {
-        if (appView != null && (appView.isCustomViewShowing() || appView.getFocusedChild() != null ) &&
+        if (appView != null && (appView.hasEnteredFullscreen() || appView.getFocusedChild() != null ) &&
                 (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_MENU)) {
             return appView.onKeyUp(keyCode, event);
         } else {
             return super.onKeyUp(keyCode, event);
-    	}
+        }
     }
     
     /*

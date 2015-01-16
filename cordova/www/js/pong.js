@@ -8755,36 +8755,71 @@ module.exports = Vector2;
 },{"buffer":1,"htZkx4":4}],13:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var startTime,
-    gestures;
+    gestures,
+    mouseY = 0,
+    lastMouseY = 0,
+    mouseStopTime = -1,
+    lastSentY = 0;
+
 
 function init() {
-	$(document).on('mousemove touchstart touchmove', onMouseMove);
-    // gestures = new Hammer.Manager(document.getElementById('game'));
-    // gestures.add(new Hammer.Swipe({ direction: Hammer.DIRECTION_VERTICAL }));
 
-    // gestures.on('swipe', onSwipe);
+    $( document ).on( 'mousemove touchstart touchmove', onMouseMove );
+
 }
 
-function onMouseMove(event) {
-    var y = event.pageY || event.originalEvent.touches && event.originalEvent.touches[0].pageY;
-    racketsManager.movePlayerRacketTo((y - stageManager.getDec().y) / stageManager.getRatio());
+function update( delta ) {
+
+    // automatically send sync of exact position after mouse stop 0.1s 
+    if ( mouseStopTime > 0.1 ) {
+
+        sendSyncPosition( lastMouseY, true );
+        mouseStopTime = -1;
+
+    } else if ( lastMouseY === mouseY && mouseStopTime >= 0 ) {
+
+        mouseStopTime += delta;
+
+    } else if ( lastMouseY !== mouseY ) {
+
+        // sync mouse position if moved by more than 24px (local)
+        if ( Math.abs( lastSentY - stageManager.sceneLocalY( mouseY ) ) > 24 ) {
+
+            sendSyncPosition( mouseY, false );
+
+        }
+    }
+
+    lastMouseY = mouseY;
+
 }
 
-function onSwipe(event) {
-    console.log(event);
-    setTimeout(function() {
-        racketsManager.movePlayerRacketBy((event.deltaY * Math.abs(event.velocity) * 0.5 - stageManager.getDec().y) / stageManager.getRatio());
-    }, 20);
+function sendSyncPosition( y, instant ) {
+
+    lastSentY = racketsManager.getPlayerRacketMovingToY();
+    syncManager.onRacketSetMovingToY( lastSentY, instant );
+
+}
+
+function onMouseMove( event ) {
+
+    mouseY = event.pageY || event.originalEvent.touches && event.originalEvent.touches[ 0 ].pageY;
+    racketsManager.movePlayerRacketTo( stageManager.sceneLocalY( mouseY ), false );
+    mouseStopTime = 0;
+
 }
 
 module.exports = {
-	init: init
+    init: init,
+    update: update
 };
 
 }).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/desktopControlsManager.js","/")
 },{"buffer":1,"htZkx4":4}],14:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 global.gameConfig = {
+    width: window.innerWidth, 
+    height: window.innerHeight,
     baseSceneWidth: 1440,
     baseSceneHeight: 900,
     checkDeltaIntervalTime: 500
@@ -8812,7 +8847,7 @@ function onDeviceReady() {
 	appManager.init();
 }
 
-}).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_6d82e47.js","/")
+}).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_20d9acc3.js","/")
 },{"./appManager":6,"./ballsManager":7,"./desktopControlsManager":13,"./hudManager":15,"./particlesManager":16,"./physicsEngine":17,"./racketsManager":18,"./socketsManager":19,"./stageManager":20,"./syncManager":21,"buffer":1,"htZkx4":4}],15:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var Hud = require('./class/Hud');
@@ -9273,7 +9308,9 @@ var playerSide = 'left',
     margin = 30;
 
 function init(scene) {
+
     rackets.left = new Racket();
+
     rackets.right = new Racket(); 
 
     resetRacketsPositions();
@@ -9293,67 +9330,108 @@ function resetRacketsPositions() {
 
     movePlayerRacketTo(centerY);
     moveOpponentRacketTo(centerY);
+
 }
 
 function setPlayerSide(isHost) {
-    console.log('setPlayerSide');
+
     playerSide   = isHost ? 'left'  : 'right';
     opponentSide = isHost ? 'right' : 'left';
+
 }
 
-function movePlayerRacketTo(y) {
-    if (y !== rackets[playerSide].movingToY) {
-        syncManager.onRacketSetMovingToY(y);
-        rackets[playerSide].setMovingToY(y);
+function movePlayerRacketTo(y, instant) {
+
+    rackets[playerSide].setMovingToY(y);
+
+    if (instant) {
+
+        rackets[playerSide].y = (rackets[playerSide].y + y) * 0.5;        
+
     }
 }
 
-function moveOpponentRacketTo(y) {
+function moveOpponentRacketTo(y, instant) {
+
     rackets[opponentSide].setMovingToY(y);
+
+    if (instant) {
+
+        rackets[opponentSide].y = (rackets[opponentSide].y + y) * 0.5;        
+
+    }
 }
 
 function movePlayerRacketBy(y) {
+
     movePlayerRacketTo(rackets[playerSide].y + y);
+
+}
+
+function getPlayerRacketMovingToY() {
+
+    return rackets[playerSide].movingToY;
+
 }
 
 function getLeftRacket() {
+
     return rackets.left;
+
 }
 
 function getRightRacket() {
+
     return rackets.right;
+
 }
 
 function getLeftRacketBoundsTopY() {
+
     return rackets.left.getBounds().y;
+
 }
 
 function getLeftRacketBoundsBottomY() {
+
     return rackets.left.getBounds().y + rackets.left.getBounds().height;
+
 }
 
 function getLeftRacketBoundsLeftX() {
+
     return rackets.left.getBounds().x;
+
 }
 
 function getLeftRacketBoundsRightX() {
+
     return rackets.left.getBounds().x + rackets.left.getBounds().width;
+
 }
 
 function getRightRacketBoundsTopY() {
+
     return rackets.right.getBounds().y;
+
 }
 
 function getRightRacketBoundsBottomY() {
+
     return rackets.right.getBounds().y + rackets.right.getBounds().height;
+
 }
 
 function getRightRacketBoundsLeftX() {
+
     return rackets.right.getBounds().x;
+
 }
 
 function getRightRacketBoundsRightX() {
+
     return rackets.right.getBounds().x + rackets.right.getBounds().width;
+
 }
 
 module.exports = {
@@ -9363,6 +9441,7 @@ module.exports = {
     movePlayerRacketTo: movePlayerRacketTo,
     moveOpponentRacketTo: moveOpponentRacketTo,
     movePlayerRacketBy: movePlayerRacketBy,
+    getPlayerRacketMovingToY: getPlayerRacketMovingToY,
     getLeftRacket: getLeftRacket,
     getRightRacket: getRightRacket,
     getLeftRacketBoundsTopY: getLeftRacketBoundsTopY,
@@ -9519,14 +9598,14 @@ module.exports = {
 }).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/socketsManager.js","/")
 },{"buffer":1,"htZkx4":4}],20:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
-var Scene = require('./class/Scene');
+var Scene = require( './class/Scene' );
 
 var renderer,
-    stage, 
+    stage,
     scene,
     particlesContainer,
     stats,
-    lastTime = 0, 
+    lastTime = 0,
     delta = 0,
     dec = new Vector2(),
     ratio = 1,
@@ -9542,20 +9621,27 @@ var renderer,
     isPaused = false;
 
 function init() {
+
     // create an new instance of a pixi stage
-    stage = new PIXI.Stage(0x222222);
-    
+    stage = new PIXI.Stage( 0x222222 );
+
     // create a renderer instance and append the view 
-    renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, null, false, true);
-    document.getElementById('game').appendChild(renderer.view);
-    
+    renderer = PIXI.autoDetectRenderer( window.innerWidth, window.innerHeight, null, false, true );
+    document.getElementById( 'game' ).appendChild( renderer.view );
+
 
     var uniforms = {};
-    uniforms.power = { type: '1f', value: 1/1000 };
-    uniforms.noise = { type: '1f', value: 0.2 };
-    
+    uniforms.power = {
+        type: '1f',
+        value: 1 / 1000
+    };
+    uniforms.noise = {
+        type: '1f',
+        value: 0.2
+    };
+
     //// grain filter..
-    
+
     var fragmentSrc = [
 
         'precision mediump float;',
@@ -9568,27 +9654,27 @@ function init() {
         'float rand(vec2 co) {',
         '    return fract(sin(dot(co.xy ,vec2(12.9898,78.233 * noise))) * 43758.5453);',
         '}',
-        
+
         'void main(void) {',
         '   vec2 cord = vTextureCoord;',
         '   cord.y += noise * 0.001;',
 
         '    vec4 color = texture2D(uSampler, vTextureCoord);',
-            
+
         '    float diff = (rand(vTextureCoord) - 0.5) * 0.075;',
         '    color.r += diff;',
         '    color.g += diff;',
         '    color.b += diff;',
-            
+
         '   gl_FragColor = color;',
         '}'
     ];
 
-    scanFilter = new PIXI.AbstractFilter(fragmentSrc, uniforms);
+    scanFilter = new PIXI.AbstractFilter( fragmentSrc, uniforms );
 
     rgbSplitFilter = new PIXI.RGBSplitFilter();
-    setRGBSplitFilterSize(3);
-    
+    setRGBSplitFilterSize( 3 );
+
 
     pixelateFilter = new PIXI.PixelateFilter();
     pixelateFilter.size.x = 3;
@@ -9598,21 +9684,21 @@ function init() {
     stats.domElement.style.position = 'absolute';
     stats.domElement.style.right = '0px';
     stats.domElement.style.top = '0px';
-    document.body.appendChild(stats.domElement);
+    document.body.appendChild( stats.domElement );
 
     background = new PIXI.Graphics();
-    background.beginFill(0x111111);
-    background.drawRect(0, 0, window.innerWidth, window.innerHeight);
-    stage.addChild(background);
+    background.beginFill( 0x111111 );
+    background.drawRect( 0, 0, window.innerWidth, window.innerHeight );
+    stage.addChild( background );
 
-    scene = new Scene(gameConfig.baseSceneWidth, gameConfig.baseSceneHeight);
+    scene = new Scene( gameConfig.baseSceneWidth, gameConfig.baseSceneHeight );
 
-    stage.addChild(scene);
+    stage.addChild( scene );
     updateGameSize();
-    
+
     window.onresize = updateGameSize;
 
-    stage.filters = [pixelateFilter, rgbSplitFilter, scanFilter];
+    stage.filters = [ pixelateFilter, rgbSplitFilter ];
     // stage.filters = [pixelateFilter];
 
     hudManager.init();
@@ -9620,98 +9706,134 @@ function init() {
     physicsEngine.init();
     particlesManager.init();
 
-    
+
 
     startTime = appManager.getStartTime();
-    checkDeltaInterval = setInterval(checkDelta, gameConfig.checkDeltaIntervalTime);
+    checkDeltaInterval = setInterval( checkDelta, gameConfig.checkDeltaIntervalTime );
     update();
+
 }
 
-function update(time) {
+function update( time ) {
+
     requestAnimFrame( update );
-    if (time) {
+
+    if ( time ) {
+
+        delta = ( time - lastTime ) * 0.001;
+        lastTime = time;
 
         // scanFilter.uniforms.power.value += (ease -  scanFilter.uniforms.power.value ) * 0.3;
 
-        scanFilter.uniforms.noise.value += 0.1;
-        scanFilter.uniforms.noise.value %= 1;
-        scanFilter.syncUniforms();
+        // scanFilter.uniforms.noise.value += 0.1;
+        // scanFilter.uniforms.noise.value %= 1;
+        // scanFilter.syncUniforms();
 
-        setRGBSplitFilterSize(time);
+        setRGBSplitFilterSize( time );
+        desktopControlsManager.update( delta );
+        physicsEngine.update( delta );
+        particlesManager.update( delta );
 
-        delta = (time - lastTime) * 0.001;
-        lastTime = time;
         stats.update();
-        physicsEngine.update(delta);
-        particlesManager.update(delta);
 
-        renderer.render(stage);
+        renderer.render( stage );
+
     }
+
 }
 
 // Manually update physics if requestAnimFrame not available (if tab inactive)
 function checkDelta() {
+
     var tempTime = new Date() - startTime;
     // console.log('tempTime', tempTime);
     // console.log('lastTime', lastTime);
-    if(tempTime - lastTime >= gameConfig.checkDeltaIntervalTime) {
-        if (!inactive) {
+
+    if ( tempTime - lastTime >= gameConfig.checkDeltaIntervalTime ) {
+
+        if ( !inactive ) {
             inactive = true;
-            console.log('player is inactive');
+            console.log( 'player is inactive' );
         }
-    }
-    else if (inactive) {
+
+    } else if ( inactive ) {
+
         inactive = false;
-        console.log('player came back');
+        console.log( 'player came back' );
+
     }
 }
 
 function updateGameSize() {
-    renderer.resize(window.innerWidth, window.innerHeight);
 
-    var ratioW = window.innerWidth  / gameConfig.baseSceneWidth;
-    var ratioH = window.innerHeight / gameConfig.baseSceneHeight;
+    gameConfig.width = window.innerWidth;
+    gameConfig.height = window.innerHeight;
 
-    if (ratioW < ratioH) {
+    renderer.resize( gameConfig.width, gameConfig.height );
+
+    var ratioW = gameConfig.width / gameConfig.baseSceneWidth;
+    var ratioH = gameConfig.height / gameConfig.baseSceneHeight;
+
+    if ( ratioW < ratioH ) {
+
         ratio = ratioW;
         dec.x = 0;
-        dec.y = (window.innerHeight - gameConfig.baseSceneHeight * ratio) / 2;
-    }
-    else {
+        dec.y = ( gameConfig.height - gameConfig.baseSceneHeight * ratio ) / 2;
+
+    } else {
+
         ratio = ratioH;
-        dec.x = (window.innerWidth - gameConfig.baseSceneWidth * ratio) / 2;
+        dec.x = ( gameConfig.width - gameConfig.baseSceneWidth * ratio ) / 2;
         dec.y = 0;
+
     }
 
-    scene.scale = new PIXI.Point(ratio, ratio);
+    scene.scale = new PIXI.Point( ratio, ratio );
     scene.x = dec.x;
     scene.y = dec.y;
 
-    background.width = window.innerWidth;
-    background.height = window.innerHeight;
+    background.width = gameConfig.width;
+    background.height = gameConfig.height;
 
-    physicsEngine.updateSceneResizeValues(dec, ratio);
+    physicsEngine.updateSceneResizeValues( dec, ratio );
+
 }
 
-function setPixelShaderSize(size) {
+function setPixelShaderSize( size ) {
+
     pixelateFilter.size.x = size;
     pixelateFilter.size.y = size;
+
 }
 
-function setRGBSplitFilterSize(time) {
-    var size = Math.sin(time/160) * 2;
+function setRGBSplitFilterSize( time, size ) {
+
+    size = size || 2;
+    var value = time / 160;
+
     rgbSplitFilter.red = {
-        x: size,
-        y: size
+        x: Math.cos( value ) * size,
+        y: Math.sin( value ) * size
     };
+
     rgbSplitFilter.green = {
-        x: -size,
-        y: size
+        x: Math.cos( value + Math.PI * 2 / 3 ) * size,
+        y: Math.sin( value + Math.PI * 2 / 3 ) * size
     };
+
     rgbSplitFilter.blue = {
-        x: size,
-        y: -size
+        x: Math.cos( value + Math.PI * 4 / 3 ) * size,
+        y: Math.sin( value + Math.PI * 4 / 3 ) * size
     };
+
+}
+
+function sceneLocalX( x ) {
+    return ( x - dec.x ) / ratio;
+}
+
+function sceneLocalY( y ) {
+    return ( y - dec.y ) / ratio;
 }
 
 function getScene() {
@@ -9735,6 +9857,8 @@ module.exports = {
     setPixelShaderSize: setPixelShaderSize,
     getScene: getScene,
     getStage: getStage,
+    sceneLocalX: sceneLocalX,
+    sceneLocalY: sceneLocalY,
     getDec: getDec,
     getRatio: getRatio
 };
@@ -9743,48 +9867,66 @@ module.exports = {
 },{"./class/Scene":11,"buffer":1,"htZkx4":4}],21:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 function init() {
-	
+
 }
 
-function onSync(data) {
-    // console.log('sync', data);
-    if (data.event === 'createBall') {
-        ballsManager.createBall(data);
-    }
-    else if (data.event === 'updateBall') {
-        ballsManager.updateBall(data);
+function onSync( data ) {
 
-        if (data.collidingDirection === 't') {
-            particlesManager.createBallCollideParticles(ballsManager.getBall(data.ID), 90);
+    if ( data.event === 'createBall' ) {
+
+        ballsManager.createBall( data );
+
+    } else if ( data.event === 'updateBall' ) {
+
+        ballsManager.updateBall( data );
+
+        if ( data.collidingDirection === 't' ) {
+
+            particlesManager.createBallCollideParticles( ballsManager.getBall( data.ID ), 90 );
+
+        } else if ( data.collidingDirection === 'b' ) {
+
+            particlesManager.createBallCollideParticles( ballsManager.getBall( data.ID ), 270 );
+
+        } else if ( data.collidingDirection === 'l' ) {
+
+            particlesManager.createBallCollideParticles( ballsManager.getBall( data.ID ), 0 );
+
+        } else if ( data.collidingDirection === 'r' ) {
+
+            particlesManager.createBallCollideParticles( ballsManager.getBall( data.ID ), 180 );
+
         }
-        else if (data.collidingDirection === 'b') {
-            particlesManager.createBallCollideParticles(ballsManager.getBall(data.ID), 270);
+
+    } else if ( data.event === 'setBallOut' ) {
+
+        var outBall = ballsManager.getBall( data.ID );
+
+        if ( outBall ) {
+
+            ballsManager.setBallOut( outBall );
+
         }
-        else if (data.collidingDirection === 'l') {
-            particlesManager.createBallCollideParticles(ballsManager.getBall(data.ID), 0);
+
+    } else if ( data.event === 'destroyBall' ) {
+
+        var destroyedBall = ballsManager.getBall( data.ID );
+
+        if ( destroyedBall ) {
+
+            ballsManager.destroyBall( destroyedBall );
+
         }
-        else if (data.collidingDirection === 'r') {
-            particlesManager.createBallCollideParticles(ballsManager.getBall(data.ID), 180);
-        }
-    }
-    else if (data.event === 'setBallOut') {
-        var outBall = ballsManager.getBall(data.ID);
-        if (outBall) {
-            ballsManager.setBallOut(outBall);
-        }
-    }
-    else if (data.event === 'destroyBall') {
-        var destroyedBall = ballsManager.getBall(data.ID);
-        if (destroyedBall) {
-            ballsManager.destroyBall(destroyedBall);
-        }
-    }
-    else if (data.event === 'racketMove') {
-        racketsManager.moveOpponentRacketTo(data.y);
+
+    } else if ( data.event === 'racketMove' ) {
+
+        racketsManager.moveOpponentRacketTo( data.y, data.instant );
+
     }
 }
 
-function onCreateBall(ball) {
+function onCreateBall( ball ) {
+
     var data = {
         event: 'createBall',
         ID: ball.ID,
@@ -9798,10 +9940,12 @@ function onCreateBall(ball) {
             y: ball.vel.y,
         }
     };
-    socketsManager.emit('sync', data);
+    socketsManager.emit( 'sync', data );
+
 }
 
-function onUpdateBall(ball, collidingDirection) {
+function onUpdateBall( ball, collidingDirection ) {
+
     var data = {
         event: 'updateBall',
         ID: ball.ID,
@@ -9815,35 +9959,42 @@ function onUpdateBall(ball, collidingDirection) {
         },
         collidingDirection: collidingDirection
     };
-    socketsManager.emit('sync', data);
+    socketsManager.emit( 'sync', data );
+
 }
 
-function onBallOut(ball) {
+function onBallOut( ball ) {
+
     var data = {
         event: 'setBallOut',
         ID: ball.ID
     };
-    socketsManager.emit('sync', data);
+    socketsManager.emit( 'sync', data );
+
 }
 
-function onBallDestroy(ball) {
+function onBallDestroy( ball ) {
+
     var data = {
         event: 'destroyBall',
         ID: ball.ID
     };
-    socketsManager.emit('sync', data);
+    socketsManager.emit( 'sync', data );
 }
 
-function onRacketSetMovingToY(y) {
+function onRacketSetMovingToY( y, instant ) {
+
     var data = {
         event: 'racketMove',
-        y: y
+        y: y,
+        instant: instant
     };
-    socketsManager.emit('sync', data);
+    socketsManager.emit( 'sync', data );
+    
 }
 
 module.exports = {
-	init: init,
+    init: init,
     onSync: onSync,
     onCreateBall: onCreateBall,
     onUpdateBall: onUpdateBall,

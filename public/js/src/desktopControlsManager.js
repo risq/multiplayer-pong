@@ -1,26 +1,59 @@
 var startTime,
-    gestures;
+    gestures,
+    mouseY = 0,
+    lastMouseY = 0,
+    mouseStopTime = -1,
+    lastSentY = 0;
+
 
 function init() {
-	$(document).on('mousemove touchstart touchmove', onMouseMove);
-    // gestures = new Hammer.Manager(document.getElementById('game'));
-    // gestures.add(new Hammer.Swipe({ direction: Hammer.DIRECTION_VERTICAL }));
 
-    // gestures.on('swipe', onSwipe);
+    $( document ).on( 'mousemove touchstart touchmove', onMouseMove );
+
 }
 
-function onMouseMove(event) {
-    var y = event.pageY || event.originalEvent.touches && event.originalEvent.touches[0].pageY;
-    racketsManager.movePlayerRacketTo((y - stageManager.getDec().y) / stageManager.getRatio());
+function update( delta ) {
+
+    // automatically send sync of exact position after mouse stop 0.1s 
+    if ( mouseStopTime > 0.1 ) {
+
+        sendSyncPosition( lastMouseY, true );
+        mouseStopTime = -1;
+
+    } else if ( lastMouseY === mouseY && mouseStopTime >= 0 ) {
+
+        mouseStopTime += delta;
+
+    } else if ( lastMouseY !== mouseY ) {
+
+        // sync mouse position if moved by more than 24px (local)
+        if ( Math.abs( lastSentY - stageManager.sceneLocalY( mouseY ) ) > 24 ) {
+
+            sendSyncPosition( mouseY, false );
+
+        }
+    }
+
+    lastMouseY = mouseY;
+
 }
 
-function onSwipe(event) {
-    console.log(event);
-    setTimeout(function() {
-        racketsManager.movePlayerRacketBy((event.deltaY * Math.abs(event.velocity) * 0.5 - stageManager.getDec().y) / stageManager.getRatio());
-    }, 20);
+function sendSyncPosition( y, instant ) {
+
+    lastSentY = racketsManager.getPlayerRacketMovingToY();
+    syncManager.onRacketSetMovingToY( lastSentY, instant );
+
+}
+
+function onMouseMove( event ) {
+
+    mouseY = event.pageY || event.originalEvent.touches && event.originalEvent.touches[ 0 ].pageY;
+    racketsManager.movePlayerRacketTo( stageManager.sceneLocalY( mouseY ), false );
+    mouseStopTime = 0;
+
 }
 
 module.exports = {
-	init: init
+    init: init,
+    update: update
 };

@@ -1,4 +1,6 @@
 global.gameConfig = {
+    width: window.innerWidth, 
+    height: window.innerHeight,
     baseSceneWidth: 1440,
     baseSceneHeight: 900,
     checkDeltaIntervalTime: 500

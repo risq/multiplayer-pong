@@ -1,11 +1,11 @@
-var Scene = require('./class/Scene');
+var Scene = require( './class/Scene' );
 
 var renderer,
-    stage, 
+    stage,
     scene,
     particlesContainer,
     stats,
-    lastTime = 0, 
+    lastTime = 0,
     delta = 0,
     dec = new Vector2(),
     ratio = 1,
@@ -21,20 +21,27 @@ var renderer,
     isPaused = false;
 
 function init() {
+
     // create an new instance of a pixi stage
-    stage = new PIXI.Stage(0x222222);
-    
+    stage = new PIXI.Stage( 0x222222 );
+
     // create a renderer instance and append the view 
-    renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, null, false, true);
-    document.getElementById('game').appendChild(renderer.view);
-    
+    renderer = PIXI.autoDetectRenderer( window.innerWidth, window.innerHeight, null, false, true );
+    document.getElementById( 'game' ).appendChild( renderer.view );
+
 
     var uniforms = {};
-    uniforms.power = { type: '1f', value: 1/1000 };
-    uniforms.noise = { type: '1f', value: 0.2 };
-    
+    uniforms.power = {
+        type: '1f',
+        value: 1 / 1000
+    };
+    uniforms.noise = {
+        type: '1f',
+        value: 0.2
+    };
+
     //// grain filter..
-    
+
     var fragmentSrc = [
 
         'precision mediump float;',
@@ -47,27 +54,27 @@ function init() {
         'float rand(vec2 co) {',
         '    return fract(sin(dot(co.xy ,vec2(12.9898,78.233 * noise))) * 43758.5453);',
         '}',
-        
+
         'void main(void) {',
         '   vec2 cord = vTextureCoord;',
         '   cord.y += noise * 0.001;',
 
         '    vec4 color = texture2D(uSampler, vTextureCoord);',
-            
+
         '    float diff = (rand(vTextureCoord) - 0.5) * 0.075;',
         '    color.r += diff;',
         '    color.g += diff;',
         '    color.b += diff;',
-            
+
         '   gl_FragColor = color;',
         '}'
     ];
 
-    scanFilter = new PIXI.AbstractFilter(fragmentSrc, uniforms);
+    scanFilter = new PIXI.AbstractFilter( fragmentSrc, uniforms );
 
     rgbSplitFilter = new PIXI.RGBSplitFilter();
-    setRGBSplitFilterSize(3);
-    
+    setRGBSplitFilterSize( 3 );
+
 
     pixelateFilter = new PIXI.PixelateFilter();
     pixelateFilter.size.x = 3;
@@ -77,21 +84,21 @@ function init() {
     stats.domElement.style.position = 'absolute';
     stats.domElement.style.right = '0px';
     stats.domElement.style.top = '0px';
-    document.body.appendChild(stats.domElement);
+    document.body.appendChild( stats.domElement );
 
     background = new PIXI.Graphics();
-    background.beginFill(0x111111);
-    background.drawRect(0, 0, window.innerWidth, window.innerHeight);
-    stage.addChild(background);
+    background.beginFill( 0x111111 );
+    background.drawRect( 0, 0, window.innerWidth, window.innerHeight );
+    stage.addChild( background );
 
-    scene = new Scene(gameConfig.baseSceneWidth, gameConfig.baseSceneHeight);
+    scene = new Scene( gameConfig.baseSceneWidth, gameConfig.baseSceneHeight );
 
-    stage.addChild(scene);
+    stage.addChild( scene );
     updateGameSize();
-    
+
     window.onresize = updateGameSize;
 
-    stage.filters = [pixelateFilter, rgbSplitFilter];
+    stage.filters = [ pixelateFilter, rgbSplitFilter ];
     // stage.filters = [pixelateFilter];
 
     hudManager.init();
@@ -99,99 +106,134 @@ function init() {
     physicsEngine.init();
     particlesManager.init();
 
-    
+
 
     startTime = appManager.getStartTime();
-    checkDeltaInterval = setInterval(checkDelta, gameConfig.checkDeltaIntervalTime);
+    checkDeltaInterval = setInterval( checkDelta, gameConfig.checkDeltaIntervalTime );
     update();
+
 }
 
-function update(time) {
+function update( time ) {
+
     requestAnimFrame( update );
-    if (time) {
+
+    if ( time ) {
+
+        delta = ( time - lastTime ) * 0.001;
+        lastTime = time;
 
         // scanFilter.uniforms.power.value += (ease -  scanFilter.uniforms.power.value ) * 0.3;
 
-        scanFilter.uniforms.noise.value += 0.1;
-        scanFilter.uniforms.noise.value %= 1;
-        scanFilter.syncUniforms();
+        // scanFilter.uniforms.noise.value += 0.1;
+        // scanFilter.uniforms.noise.value %= 1;
+        // scanFilter.syncUniforms();
 
-        setRGBSplitFilterSize(time);
+        setRGBSplitFilterSize( time );
+        desktopControlsManager.update( delta );
+        physicsEngine.update( delta );
+        particlesManager.update( delta );
 
-        delta = (time - lastTime) * 0.001;
-        lastTime = time;
         stats.update();
-        physicsEngine.update(delta);
-        particlesManager.update(delta);
 
-        renderer.render(stage);
+        renderer.render( stage );
+
     }
+
 }
 
 // Manually update physics if requestAnimFrame not available (if tab inactive)
 function checkDelta() {
+
     var tempTime = new Date() - startTime;
     // console.log('tempTime', tempTime);
     // console.log('lastTime', lastTime);
-    if(tempTime - lastTime >= gameConfig.checkDeltaIntervalTime) {
-        if (!inactive) {
+
+    if ( tempTime - lastTime >= gameConfig.checkDeltaIntervalTime ) {
+
+        if ( !inactive ) {
             inactive = true;
-            console.log('player is inactive');
+            console.log( 'player is inactive' );
         }
-    }
-    else if (inactive) {
+
+    } else if ( inactive ) {
+
         inactive = false;
-        console.log('player came back');
+        console.log( 'player came back' );
+
     }
 }
 
 function updateGameSize() {
-    renderer.resize(window.innerWidth, window.innerHeight);
 
-    var ratioW = window.innerWidth  / gameConfig.baseSceneWidth;
-    var ratioH = window.innerHeight / gameConfig.baseSceneHeight;
+    gameConfig.width = window.innerWidth;
+    gameConfig.height = window.innerHeight;
 
-    if (ratioW < ratioH) {
+    renderer.resize( gameConfig.width, gameConfig.height );
+
+    var ratioW = gameConfig.width / gameConfig.baseSceneWidth;
+    var ratioH = gameConfig.height / gameConfig.baseSceneHeight;
+
+    if ( ratioW < ratioH ) {
+
         ratio = ratioW;
         dec.x = 0;
-        dec.y = (window.innerHeight - gameConfig.baseSceneHeight * ratio) / 2;
-    }
-    else {
+        dec.y = ( gameConfig.height - gameConfig.baseSceneHeight * ratio ) / 2;
+
+    } else {
+
         ratio = ratioH;
-        dec.x = (window.innerWidth - gameConfig.baseSceneWidth * ratio) / 2;
+        dec.x = ( gameConfig.width - gameConfig.baseSceneWidth * ratio ) / 2;
         dec.y = 0;
+
     }
 
-    scene.scale = new PIXI.Point(ratio, ratio);
+    scene.scale = new PIXI.Point( ratio, ratio );
     scene.x = dec.x;
     scene.y = dec.y;
 
-    background.width = window.innerWidth;
-    background.height = window.innerHeight;
+    background.width = gameConfig.width;
+    background.height = gameConfig.height;
 
-    physicsEngine.updateSceneResizeValues(dec, ratio);
+    physicsEngine.updateSceneResizeValues( dec, ratio );
+
 }
 
-function setPixelShaderSize(size) {
+function setPixelShaderSize( size ) {
+
     pixelateFilter.size.x = size;
     pixelateFilter.size.y = size;
+
 }
 
-function setRGBSplitFilterSize(time, size) {
+function setRGBSplitFilterSize( time, size ) {
+
     size = size || 2;
-    var value = time/160;
+    var value = time / 160;
+
     rgbSplitFilter.red = {
-        x: Math.cos(value) * size,
-        y: Math.sin(value) * size
+        x: Math.cos( value ) * size,
+        y: Math.sin( value ) * size
     };
+
     rgbSplitFilter.green = {
-        x: Math.cos(value + Math.PI * 2 / 3) * size,
-        y: Math.sin(value + Math.PI * 2 / 3) * size
-    };  
-    rgbSplitFilter.blue = {
-        x: Math.cos(value + Math.PI * 4 / 3) * size,
-        y: Math.sin(value + Math.PI * 4 / 3) * size
+        x: Math.cos( value + Math.PI * 2 / 3 ) * size,
+        y: Math.sin( value + Math.PI * 2 / 3 ) * size
     };
+
+    rgbSplitFilter.blue = {
+        x: Math.cos( value + Math.PI * 4 / 3 ) * size,
+        y: Math.sin( value + Math.PI * 4 / 3 ) * size
+    };
+
+}
+
+function sceneLocalX( x ) {
+    return ( x - dec.x ) / ratio;
+}
+
+function sceneLocalY( y ) {
+    return ( y - dec.y ) / ratio;
 }
 
 function getScene() {
@@ -215,6 +257,8 @@ module.exports = {
     setPixelShaderSize: setPixelShaderSize,
     getScene: getScene,
     getStage: getStage,
+    sceneLocalX: sceneLocalX,
+    sceneLocalY: sceneLocalY,
     getDec: getDec,
     getRatio: getRatio
 };
