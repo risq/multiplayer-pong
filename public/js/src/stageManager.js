@@ -91,7 +91,7 @@ function init() {
     
     window.onresize = updateGameSize;
 
-    stage.filters = [pixelateFilter, rgbSplitFilter, scanFilter];
+    stage.filters = [rgbSplitFilter, pixelateFilter];
     // stage.filters = [pixelateFilter];
 
     hudManager.init();
@@ -177,19 +177,20 @@ function setPixelShaderSize(size) {
     pixelateFilter.size.y = size;
 }
 
-function setRGBSplitFilterSize(time) {
-    var size = Math.sin(time/160) * 2;
+function setRGBSplitFilterSize(time, size) {
+    size = size || 2;
+    var value = time/160;
     rgbSplitFilter.red = {
-        x: size,
-        y: size
+        x: Math.cos(value) * size,
+        y: Math.sin(value) * size
     };
     rgbSplitFilter.green = {
-        x: -size,
-        y: size
-    };
+        x: Math.cos(value + Math.PI * 2 / 3) * size,
+        y: Math.sin(value + Math.PI * 2 / 3) * size
+    };  
     rgbSplitFilter.blue = {
-        x: size,
-        y: -size
+        x: Math.cos(value + Math.PI * 4 / 3) * size,
+        y: Math.sin(value + Math.PI * 4 / 3) * size
     };
 }
 
