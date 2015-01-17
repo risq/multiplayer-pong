@@ -70,6 +70,12 @@ function movePlayerRacketBy(y) {
 
 }
 
+function getPlayerRacketY() {
+
+    return rackets[playerSide].y;
+
+}
+
 function getPlayerRacketMovingToY() {
 
     return rackets[playerSide].movingToY;
@@ -143,6 +149,7 @@ module.exports = {
     movePlayerRacketTo: movePlayerRacketTo,
     moveOpponentRacketTo: moveOpponentRacketTo,
     movePlayerRacketBy: movePlayerRacketBy,
+    getPlayerRacketY: getPlayerRacketY,
     getPlayerRacketMovingToY: getPlayerRacketMovingToY,
     getLeftRacket: getLeftRacket,
     getRightRacket: getRightRacket,

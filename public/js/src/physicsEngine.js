@@ -41,7 +41,7 @@ function updateRackets() {
 
 function updateRacket(racket) {
 	if (Math.abs(racket.y - racket.movingToY) > 1) {
-		racket.y += (racket.movingToY - racket.y)  * 15 * currentDelta; 
+		racket.y += (racket.movingToY - racket.y)  * 8 * currentDelta; 
 	}
 	else {
 		racket.y = racket.movingToY;

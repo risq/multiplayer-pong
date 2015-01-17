@@ -9,6 +9,7 @@ global.gameConfig = {
 global.appManager 				= require('./appManager');
 global.ballsManager 			= require('./ballsManager');
 global.desktopControlsManager 	= require('./desktopControlsManager');
+global.touchControlsManager 	= require('./touchControlsManager');
 global.hudManager 				= require('./hudManager');
 global.particlesManager 		= require('./particlesManager');
 global.physicsEngine 			= require('./physicsEngine');

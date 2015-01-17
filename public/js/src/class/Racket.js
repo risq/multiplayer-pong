@@ -22,11 +22,10 @@ Racket.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 Racket.prototype.constructor = Racket;
 
 Racket.prototype.setMovingToY = function(y) {
-	// this.movingToY = y - this.height * 0.5 < 0 ? this.height * 0.5 :
- //                     y + this.height * 0.5 > gameConfig.baseSceneHeight ? gameConfig.baseSceneHeight - this.height * 0.5 :
- //                     y;
+	this.movingToY = y - this.height * 0.5 < 0 ? this.height * 0.5 :
+                     y + this.height * 0.5 > gameConfig.baseSceneHeight ? gameConfig.baseSceneHeight - this.height * 0.5 :
+                     y;
 
-    this.movingToY = y;
 };
 
 Racket.prototype.updatePivot = function() {

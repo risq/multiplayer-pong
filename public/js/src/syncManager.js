@@ -46,6 +46,8 @@ function onSync( data ) {
 
         if ( destroyedBall ) {
 
+            destroyedBall.x = data.pos.x;
+            destroyedBall.y = data.pos.y;
             ballsManager.destroyBall( destroyedBall );
 
         }
@@ -109,7 +111,11 @@ function onBallDestroy( ball ) {
 
     var data = {
         event: 'destroyBall',
-        ID: ball.ID
+        ID: ball.ID,
+        pos: {
+            x: ball.x,
+            y: ball.y
+        }
     };
     socketsManager.emit( 'sync', data );
 }

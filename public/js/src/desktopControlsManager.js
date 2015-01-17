@@ -8,7 +8,7 @@ var startTime,
 
 function init() {
 
-    $( document ).on( 'mousemove touchstart touchmove', onMouseMove );
+    $( document ).on( 'mousemove', onMouseMove );
 
 }
 

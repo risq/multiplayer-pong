@@ -4,7 +4,7 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
-var port = process.env.PORT || 1337;
+var port = process.env.PORT || 80;
 
 global.deviceConnectionsManager = require('./src/deviceConnectionsManager');
 global.gameRoomsManager = require('./src/gameRoomsManager');

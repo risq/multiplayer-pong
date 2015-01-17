@@ -131,6 +131,7 @@ function update( time ) {
 
         setRGBSplitFilterSize( time );
         desktopControlsManager.update( delta );
+        touchControlsManager.update( delta );
         physicsEngine.update( delta );
         particlesManager.update( delta );
 

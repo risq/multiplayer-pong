@@ -8206,6 +8206,7 @@ function onConnectionReady(mode) {
 
     if (controlMode === 'desktopOnly') {
         desktopControlsManager.init();
+        touchControlsManager.init();
     }
 }
 
@@ -8764,7 +8765,7 @@ var startTime,
 
 function init() {
 
-    $( document ).on( 'mousemove touchstart touchmove', onMouseMove );
+    $( document ).on( 'mousemove', onMouseMove );
 
 }
 
@@ -8828,6 +8829,7 @@ global.gameConfig = {
 global.appManager 				= require('./appManager');
 global.ballsManager 			= require('./ballsManager');
 global.desktopControlsManager 	= require('./desktopControlsManager');
+global.touchControlsManager 	= require('./touchControlsManager');
 global.hudManager 				= require('./hudManager');
 global.particlesManager 		= require('./particlesManager');
 global.physicsEngine 			= require('./physicsEngine');
@@ -8847,8 +8849,8 @@ function onDeviceReady() {
 	appManager.init();
 }
 
-}).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_20d9acc3.js","/")
-},{"./appManager":6,"./ballsManager":7,"./desktopControlsManager":13,"./hudManager":15,"./particlesManager":16,"./physicsEngine":17,"./racketsManager":18,"./socketsManager":19,"./stageManager":20,"./syncManager":21,"buffer":1,"htZkx4":4}],15:[function(require,module,exports){
+}).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_24fff8fc.js","/")
+},{"./appManager":6,"./ballsManager":7,"./desktopControlsManager":13,"./hudManager":15,"./particlesManager":16,"./physicsEngine":17,"./racketsManager":18,"./socketsManager":19,"./stageManager":20,"./syncManager":21,"./touchControlsManager":22,"buffer":1,"htZkx4":4}],15:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var Hud = require('./class/Hud');
 
@@ -10004,4 +10006,64 @@ module.exports = {
 };
 
 }).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/syncManager.js","/")
+},{"buffer":1,"htZkx4":4}],22:[function(require,module,exports){
+(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+var touchStates = {
+    left: false,
+    right: false
+};
+
+
+function init() {
+
+    $( document ).on( 'touchstart', onTouchStart );
+    $( document ).on( 'touchend', onTouchEnd );
+
+}
+
+function update( delta ) {
+
+    if ( touchStates.left && touchStates.right || !touchStates.left && !touchStates.right ) {
+
+        racketsManager.movePlayerRacketTo( gameConfig.baseSceneHeight * 0.5 );
+
+    } else if ( touchStates.left ) {
+
+        racketsManager.movePlayerRacketTo( gameConfig.baseSceneHeight );
+
+    } else if ( touchStates.right ) {
+
+        racketsManager.movePlayerRacketTo( 0 );
+
+    }
+}
+
+function onTouchStart( event ) {
+
+    for ( var i = event.originalEvent.touches.length - 1; i >= 0; i-- ) {
+
+        var side = event.originalEvent.touches[ i ].clientX < gameConfig.width / 2 ? 'left' : 'right';
+        touchStates[ side ] = true;
+        // console.log( side, touchStates[ side ], event.originalEvent.touches[ i ].clientX, gameConfig.width );
+
+    }
+
+    update();
+
+}
+
+function onTouchEnd( event ) {
+
+    var side = event.originalEvent.changedTouches[ 0 ].clientX < gameConfig.width / 2 ? 'left' : 'right';
+    touchStates[ side ] = false;
+    update();
+
+}
+
+module.exports = {
+    init: init,
+    update: update
+};
+
+}).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/touchControlsManager.js","/")
 },{"buffer":1,"htZkx4":4}]},{},[14])

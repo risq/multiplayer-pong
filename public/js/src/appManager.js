@@ -19,6 +19,7 @@ function onConnectionReady(mode) {
 
     if (controlMode === 'desktopOnly') {
         desktopControlsManager.init();
+        touchControlsManager.init();
     }
 }
 
