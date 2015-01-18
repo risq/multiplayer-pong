@@ -13,7 +13,7 @@ function init(scene) {
 
     rackets.left = new Racket();
 
-    rackets.right = new Racket(); 
+    rackets.right = new Racket();
 
     resetRacketsPositions();
 
@@ -25,10 +25,10 @@ function resetRacketsPositions() {
 
     var centerY = stageManager.getScene().getCenter().y;
 
-    rackets.left.x  = margin;
-    rackets.left.y  = centerY;
-    rackets.right.x = gameConfig.baseSceneWidth - margin; 
-    rackets.right.y = centerY ;
+    rackets.left.x = margin;
+    rackets.left.y = centerY;
+    rackets.right.x = gameConfig.baseSceneWidth - margin;
+    rackets.right.y = centerY;
 
     movePlayerRacketTo(centerY);
     moveOpponentRacketTo(centerY);
@@ -37,7 +37,7 @@ function resetRacketsPositions() {
 
 function setPlayerSide(isHost) {
 
-    playerSide   = isHost ? 'left'  : 'right';
+    playerSide = isHost ? 'left' : 'right';
     opponentSide = isHost ? 'right' : 'left';
 
 }
@@ -48,7 +48,7 @@ function movePlayerRacketTo(y, instant) {
 
     if (instant) {
 
-        rackets[playerSide].y = (rackets[playerSide].y + y) * 0.5;        
+        rackets[playerSide].y = (rackets[playerSide].y + y) * 0.5;
 
     }
 }
@@ -59,7 +59,7 @@ function moveOpponentRacketTo(y, instant) {
 
     if (instant) {
 
-        rackets[opponentSide].y = (rackets[opponentSide].y + y) * 0.5;        
+        rackets[opponentSide].y = (rackets[opponentSide].y + y) * 0.5;
 
     }
 }
@@ -96,54 +96,54 @@ function getRightRacket() {
 
 function getLeftRacketBoundsTopY() {
 
-    return rackets.left.getBounds().y;
+    return rackets.left.y - rackets.left.height / 2;
 
 }
 
 function getLeftRacketBoundsBottomY() {
 
-    return rackets.left.getBounds().y + rackets.left.getBounds().height;
+    return rackets.left.y + rackets.left.height / 2;
 
 }
 
 function getLeftRacketBoundsLeftX() {
 
-    return rackets.left.getBounds().x;
+    return rackets.left.x - rackets.left.width / 2;
 
 }
 
 function getLeftRacketBoundsRightX() {
 
-    return rackets.left.getBounds().x + rackets.left.getBounds().width;
+    return rackets.left.x + rackets.left.width / 2;
 
 }
 
 function getRightRacketBoundsTopY() {
 
-    return rackets.right.getBounds().y;
+    return rackets.right.y - rackets.right.height / 2;
 
 }
 
 function getRightRacketBoundsBottomY() {
 
-    return rackets.right.getBounds().y + rackets.right.getBounds().height;
+    return rackets.right.y + rackets.right.height / 2;
 
 }
 
 function getRightRacketBoundsLeftX() {
 
-    return rackets.right.getBounds().x;
+    return rackets.right.x - rackets.right.width / 2;
 
 }
 
 function getRightRacketBoundsRightX() {
 
-    return rackets.right.getBounds().x + rackets.right.getBounds().width;
+    return rackets.right.x + rackets.right.width / 2;
 
 }
 
 module.exports = {
-	init: init,
+    init: init,
     resetRacketsPositions: resetRacketsPositions,
     setPlayerSide: setPlayerSide,
     movePlayerRacketTo: movePlayerRacketTo,

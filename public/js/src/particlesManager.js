@@ -46,8 +46,8 @@ function createBallCollideParticles(ball, angle) {
                 "end": 0
             },
             "scale": {
-                "start": 1 / 24 * ball.radius,
-                "end":   1 / 54 * ball.radius,
+                "start": 1 / 24 * ball.size,
+                "end":   1 / 54 * ball.size,
                 "minimumScaleMultiplier": 1
             },
             "color": {
@@ -55,8 +55,8 @@ function createBallCollideParticles(ball, angle) {
                 "end": "#333333"
             },
             "speed": {
-                "start": 10 * ball.radius,
-                "end": 2 * ball.radius
+                "start": 10 * ball.size,
+                "end": 2 * ball.size
             },
             "acceleration": {
                 "x": 0,
@@ -79,8 +79,8 @@ function createBallCollideParticles(ball, angle) {
             "emitterLifetime": 0.2,
             "maxParticles": 6,
             "pos": {
-                "x": ball.x + ball.radius / 2,
-                "y": ball.y + ball.radius / 2
+                "x": ball.x + ball.size / 2,
+                "y": ball.y + ball.size / 2
             },
             "addAtBack": false,
             "spawnType": "point"
@@ -96,8 +96,8 @@ function createBallExplodeParticles(ball) {
                 "end": 0
             },
             "scale": {
-                "start": 1 / 24 * ball.radius,
-                "end":   1 / 48 * ball.radius,
+                "start": 1 / 24 * ball.size,
+                "end":   1 / 48 * ball.size,
                 "minimumScaleMultiplier": 1
             },
             "color": {
@@ -105,8 +105,8 @@ function createBallExplodeParticles(ball) {
                 "end": "#333333"
             },
             "speed": {
-                "start": 50 * ball.radius,
-                "end": 10 * ball.radius
+                "start": 50 * ball.size,
+                "end": 10 * ball.size
             },
             "acceleration": {
                 "x": 0,
@@ -129,8 +129,8 @@ function createBallExplodeParticles(ball) {
             "emitterLifetime": 0.15,
             "maxParticles": 32,
             "pos": {
-                "x": ball.x + ball.radius / 2,
-                "y": ball.y + ball.radius / 2
+                "x": ball.x + ball.size / 2,
+                "y": ball.y + ball.size / 2
             },
             "addAtBack": false,
             "spawnType": "point"

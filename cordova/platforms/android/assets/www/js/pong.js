@@ -8219,7 +8219,7 @@ function onGameReady(newGameRoomID, newGameIsHost) {
     racketsManager.resetRacketsPositions();
 
     if (isHost) {
-        ballsManager.createBalls(48, null, 650, 500, 4);
+        ballsManager.createBalls(64, null, 650, 500, 4);
         // ballsManager.createBall({
         //     pos: new Vector2(60, 10), 
         //     vel: new Vector2(-40, 300)
@@ -8385,10 +8385,10 @@ module.exports =  {
 }).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/ballsManager.js","/")
 },{"./class/Ball":8,"buffer":1,"htZkx4":4}],8:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
-Ball = function(ID, pos, color, radius) {
+Ball = function(ID, pos, color, size) {
     PIXI.DisplayObjectContainer.call( this );
     this.ID = ID;
-    this.radius = radius || 28;
+    this.size = size || 28;
     this.color  = color  || parseInt(Please.make_color().slice(1), 16);
     this.colorHex = '#' + this.color.toString(16);
     this.vel = new Vector2(0, 0);
@@ -8398,7 +8398,7 @@ Ball = function(ID, pos, color, radius) {
 
 	var graphics = new PIXI.Graphics();
 	graphics.beginFill(this.color);
-	graphics.drawRect(0, 0, this.radius, this.radius);
+	graphics.drawRect(0, 0, this.size, this.size);
     this.addChild(graphics);
 
     this.x = pos ? pos.x : 0;
@@ -8472,10 +8472,10 @@ Racket = function(pos, color) {
     this.color = color || 0xFFFFFF;
     this.size = 240;
 
-    var graphics = new PIXI.Graphics();
-    graphics.beginFill(this.color);
-    graphics.drawRect(0, 0, 40, this.size);
-    this.addChild(graphics);
+    this.graphics = new PIXI.Graphics();
+    this.graphics.beginFill(this.color);
+    this.graphics.drawRect(0, 0, 40, this.size);
+    this.addChild(this.graphics);
 
     this.vel = new Vector2();
 
@@ -8490,11 +8490,10 @@ Racket.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 Racket.prototype.constructor = Racket;
 
 Racket.prototype.setMovingToY = function(y) {
-	// this.movingToY = y - this.height * 0.5 < 0 ? this.height * 0.5 :
- //                     y + this.height * 0.5 > gameConfig.baseSceneHeight ? gameConfig.baseSceneHeight - this.height * 0.5 :
- //                     y;
+	this.movingToY = y - this.height * 0.5 < 0 ? this.height * 0.5 :
+                     y + this.height * 0.5 > gameConfig.baseSceneHeight ? gameConfig.baseSceneHeight - this.height * 0.5 :
+                     y;
 
-    this.movingToY = y;
 };
 
 Racket.prototype.updatePivot = function() {
@@ -8784,7 +8783,7 @@ function update( delta ) {
     } else if ( lastMouseY !== mouseY ) {
 
         // sync mouse position if moved by more than 24px (local)
-        if ( Math.abs( lastSentY - stageManager.sceneLocalY( mouseY ) ) > 24 ) {
+        if ( Math.abs( lastSentY - stageManager.globalToSceneLocalY( mouseY ) ) > 24 ) {
 
             sendSyncPosition( mouseY, false );
 
@@ -8805,9 +8804,13 @@ function sendSyncPosition( y, instant ) {
 function onMouseMove( event ) {
 
     mouseY = event.pageY || event.originalEvent.touches && event.originalEvent.touches[ 0 ].pageY;
-    racketsManager.movePlayerRacketTo( stageManager.sceneLocalY( mouseY ), false );
-    mouseStopTime = 0;
+    
+    if (mouseY !== undefined) {
 
+        racketsManager.movePlayerRacketTo( stageManager.globalToSceneLocalY( mouseY ), false );
+        mouseStopTime = 0;
+        
+    }
 }
 
 module.exports = {
@@ -8819,24 +8822,24 @@ module.exports = {
 },{"buffer":1,"htZkx4":4}],14:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 global.gameConfig = {
-    width: window.innerWidth, 
+    width: window.innerWidth,
     height: window.innerHeight,
     baseSceneWidth: 1440,
     baseSceneHeight: 900,
     checkDeltaIntervalTime: 500
 };
 
-global.appManager 				= require('./appManager');
-global.ballsManager 			= require('./ballsManager');
-global.desktopControlsManager 	= require('./desktopControlsManager');
-global.touchControlsManager 	= require('./touchControlsManager');
-global.hudManager 				= require('./hudManager');
-global.particlesManager 		= require('./particlesManager');
-global.physicsEngine 			= require('./physicsEngine');
-global.racketsManager 			= require('./racketsManager');
-global.socketsManager 			= require('./socketsManager');
-global.stageManager 			= require('./stageManager');
-global.syncManager 				= require('./syncManager');
+global.appManager             = require('./appManager');
+global.ballsManager           = require('./ballsManager');
+global.desktopControlsManager = require('./desktopControlsManager');
+global.touchControlsManager   = require('./touchControlsManager');
+global.hudManager             = require('./hudManager');
+global.particlesManager       = require('./particlesManager');
+global.physicsEngine          = require('./physicsEngine');
+global.racketsManager         = require('./racketsManager');
+global.socketsManager         = require('./socketsManager');
+global.stageManager           = require('./stageManager');
+global.syncManager            = require('./syncManager');
 
 
 if ( window.location.protocol === "file:" ) {
@@ -8849,7 +8852,7 @@ function onDeviceReady() {
 	appManager.init();
 }
 
-}).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_24fff8fc.js","/")
+}).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_f89f457.js","/")
 },{"./appManager":6,"./ballsManager":7,"./desktopControlsManager":13,"./hudManager":15,"./particlesManager":16,"./physicsEngine":17,"./racketsManager":18,"./socketsManager":19,"./stageManager":20,"./syncManager":21,"./touchControlsManager":22,"buffer":1,"htZkx4":4}],15:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var Hud = require('./class/Hud');
@@ -8941,8 +8944,8 @@ function createBallCollideParticles(ball, angle) {
                 "end": 0
             },
             "scale": {
-                "start": 1 / 24 * ball.radius,
-                "end":   1 / 54 * ball.radius,
+                "start": 1 / 24 * ball.size,
+                "end":   1 / 54 * ball.size,
                 "minimumScaleMultiplier": 1
             },
             "color": {
@@ -8950,8 +8953,8 @@ function createBallCollideParticles(ball, angle) {
                 "end": "#333333"
             },
             "speed": {
-                "start": 10 * ball.radius,
-                "end": 2 * ball.radius
+                "start": 10 * ball.size,
+                "end": 2 * ball.size
             },
             "acceleration": {
                 "x": 0,
@@ -8974,8 +8977,8 @@ function createBallCollideParticles(ball, angle) {
             "emitterLifetime": 0.2,
             "maxParticles": 6,
             "pos": {
-                "x": ball.x + ball.radius / 2,
-                "y": ball.y + ball.radius / 2
+                "x": ball.x + ball.size / 2,
+                "y": ball.y + ball.size / 2
             },
             "addAtBack": false,
             "spawnType": "point"
@@ -8991,8 +8994,8 @@ function createBallExplodeParticles(ball) {
                 "end": 0
             },
             "scale": {
-                "start": 1 / 24 * ball.radius,
-                "end":   1 / 48 * ball.radius,
+                "start": 1 / 24 * ball.size,
+                "end":   1 / 48 * ball.size,
                 "minimumScaleMultiplier": 1
             },
             "color": {
@@ -9000,8 +9003,8 @@ function createBallExplodeParticles(ball) {
                 "end": "#333333"
             },
             "speed": {
-                "start": 50 * ball.radius,
-                "end": 10 * ball.radius
+                "start": 50 * ball.size,
+                "end": 10 * ball.size
             },
             "acceleration": {
                 "x": 0,
@@ -9024,8 +9027,8 @@ function createBallExplodeParticles(ball) {
             "emitterLifetime": 0.15,
             "maxParticles": 32,
             "pos": {
-                "x": ball.x + ball.radius / 2,
-                "y": ball.y + ball.radius / 2
+                "x": ball.x + ball.size / 2,
+                "y": ball.y + ball.size / 2
             },
             "addAtBack": false,
             "spawnType": "point"
@@ -9050,249 +9053,305 @@ module.exports = {
 }).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/particlesManager.js","/")
 },{"buffer":1,"htZkx4":4,"lodash":5}],17:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
-Vector2 = require('./class/Vector2');
+Vector2 = require( './class/Vector2' );
 
 
 var currentDelta = 0,
-	currentDec = new Vector2(),
-	currentRatio = 1,
-	safetyGapSize = 6,
-	racketsMargin = 34,
+    currentDec = new Vector2(),
+    currentRatio = 1,
+    safetyGapSize = 6,
+    racketsMargin = 34;
 
-	wallsBounds;
 
 function init() {
-		wallsBounds = new PIXI.Rectangle(
-		0, 
-		0, 
-		gameConfig.baseSceneWidth,
-		gameConfig.baseSceneHeight);
+
+
 }
 
-function update(delta) {
-	currentDelta = delta;
+function update( delta ) {
 
-	if (currentDelta) {
-		updateRackets();
-		updateBalls();
+    currentDelta = delta;
+
+    if ( currentDelta ) {
+
+        updateRackets();
+        updateBalls();
+
     }
 }
 
-function setVel(object, vel) {
-	object.vel.copy(vel);
+function setVel( object, vel ) {
+
+    object.vel.copy( vel );
+
 }
 
-function addVel(object, vel) {
-	object.vel.addSelf(vel);
+function addVel( object, vel ) {
+
+    object.vel.addSelf( vel );
+
 }
 
 function updateRackets() {
-	updateRacket(racketsManager.getLeftRacket());
-	updateRacket(racketsManager.getRightRacket());
+
+    updateRacket( racketsManager.getLeftRacket() );
+    updateRacket( racketsManager.getRightRacket() );
+
 }
 
-function updateRacket(racket) {
-	if (Math.abs(racket.y - racket.movingToY) > 1) {
-		racket.y += (racket.movingToY - racket.y)  * 15 * currentDelta; 
-	}
-	else {
-		racket.y = racket.movingToY;
-	}
+function updateRacket( racket ) {
+
+    if ( Math.abs( racket.y - racket.movingToY ) > 1 ) {
+
+        racket.y += ( racket.movingToY - racket.y ) * 8 * currentDelta;
+
+    } else {
+
+        racket.y = racket.movingToY;
+
+    }
 }
 
 function updateBalls() {
-	ballsManager.getBalls().forEach(updateBall);
+
+    ballsManager.getBalls().forEach( updateBall );
+
 }
 
-function updateBall(ball, index) {
-	if (ball && ball.physics) {
-		if (ball.vel.x >= -50 && ball.vel.x <= 50) {
-			ball.vel.x = ball.vel.x + ball.vel.x * 0.1;
-		}
-		checkBallCollision(ball);
-		updateObjectPos(ball);
-		applyMagnetForce(ball);
-	}
+function updateBall( ball, index ) {
+
+    if ( ball && ball.physics ) {
+
+        if ( ball.vel.x >= -50 && ball.vel.x <= 50 ) {
+
+            ball.vel.x = ball.vel.x + ball.vel.x * 0.1;
+
+        }
+        checkBallCollision( ball );
+        updateObjectPos( ball );
+        applyMagnetForce( ball );
+
+    }
 }
 
-function updateObjectPos(object) {
-	object.x = object.x + object.vel.x * currentDelta;
-	object.y = object.y + object.vel.y * currentDelta;
+function updateObjectPos( object ) {
+
+    object.x = object.x + object.vel.x * currentDelta;
+    object.y = object.y + object.vel.y * currentDelta;
+
 }
 
-function checkBallCollision(ball) {
-	var bounds = ball.getBounds();
-	bounds.localX = bounds.x - stageManager.getDec().x;
-	bounds.localY = bounds.y - stageManager.getDec().y;
+function checkBallCollision( ball ) {
+    ball.nextX = ball.x + ball.vel.x * currentDelta;
+    ball.nextY = ball.y + ball.vel.y * currentDelta;
 
+    // Test top collision
+    if ( ball.nextY <= 0 ) {
 
-	// Test top collision
-	if (ball.y + ball.vel.y * currentDelta <= wallsBounds.y || 
-		ball.y <= wallsBounds.y) {
+        ball.y = 0;
 
-		ball.y = wallsBounds.y;
+        if ( ball.out ) {
 
-		if (ball.out) {
-			ballsManager.onBallOutDestroy(ball);
-		}
-		else {
-			onBallCollideTop(ball);
-		}
-	}
+            ballsManager.onBallOutDestroy( ball );
 
-	// Test bottom collision
-	else if (ball.y + bounds.height + ball.vel.y * currentDelta >= wallsBounds.y + wallsBounds.height || 
-			 ball.y + bounds.height >= wallsBounds.y + wallsBounds.height) {
+        } else {
 
-		ball.y = wallsBounds.y + wallsBounds.height - ball.radius;
+            onBallCollideTop( ball );
 
-		if (ball.out) {
-			ballsManager.onBallOutDestroy(ball);
-		}
-		else {
-			onBallCollideBottom(ball);
-		}
-	}
+        }
+    }
 
-	// If ball is not out of the game
-	if (!ball.out) {
+    // Test bottom collision
+    else if ( ball.nextY + ball.size >= gameConfig.baseSceneHeight ) {
 
-		// Test left collision
-		if (bounds.x + (ball.vel.x * currentDelta) * currentRatio < racketsManager.getLeftRacketBoundsRightX()) {
+        ball.y = gameConfig.baseSceneHeight - ball.size;
 
-			// If the ball touches left racket
-			if (bounds.y + bounds.height > racketsManager.getLeftRacketBoundsTopY() &&
-				bounds.y < racketsManager.getLeftRacketBoundsBottomY()) {
+        if ( ball.out ) {
 
-				ball.x = (racketsManager.getLeftRacketBoundsRightX() - currentDec.x) / currentRatio;
-				onBallCollideLeft(ball);				
-			}
-			else if (bounds.x < racketsManager.getLeftRacketBoundsLeftX()) {
-				ballsManager.onBallOut(ball);
-			}
-		}
-		// Test right collision
-		else if (bounds.x + bounds.width + (ball.vel.x * currentDelta) * currentRatio > racketsManager.getRightRacketBoundsLeftX()) {
+            ballsManager.onBallOutDestroy( ball );
 
-			// If the ball touches right racket
-			if (bounds.y + bounds.height > racketsManager.getRightRacketBoundsTopY() &&
-				bounds.y < racketsManager.getRightRacketBoundsBottomY()) {
+        } else {
 
-				ball.x = (racketsManager.getRightRacketBoundsLeftX() - currentDec.x - bounds.width) / currentRatio;
-				onBallCollideRight(ball);
-			}
-			else if (bounds.x + bounds.width > racketsManager.getRightRacketBoundsLeftX()) {
-				ballsManager.onBallOut(ball);
-			}
-		}
-	}
+            onBallCollideBottom( ball );
 
-	// If ball is out, test collision with top & bottom of rackets
-	else {
-		// Ball needs to be destroy
-		if (bounds.x + bounds.width < racketsManager.getLeftRacketBoundsLeftX() - 40 * currentRatio ||
-			bounds.x > racketsManager.getRightRacketBoundsRightX() + 40 * currentRatio) {
+        }
+    }
 
-			ballsManager.onBallOutDestroy(ball);
-		}
+    // If ball is not out of the game
+    if ( !ball.out ) {
 
-		// Left racket
-		else if (bounds.x < racketsManager.getLeftRacketBoundsRightX() &&
-			bounds.y + bounds.height > racketsManager.getLeftRacketBoundsTopY() && 
-			bounds.y < racketsManager.getLeftRacketBoundsBottomY()) {
+        // Test left collision
+        if ( ball.nextX <= racketsManager.getLeftRacketBoundsRightX() &&
+            ball.x >= racketsManager.getLeftRacketBoundsRightX() ) {
 
-			var leftRacketCenterY = (racketsManager.getLeftRacketBoundsTopY() + racketsManager.getLeftRacketBoundsBottomY()) * 0.5;
+            // If the ball touches left racket
+            if ( ball.nextY + ball.size > racketsManager.getLeftRacketBoundsTopY() &&
+                ball.nextY < racketsManager.getLeftRacketBoundsBottomY() ) {
 
-			// collide top of racket
-			if (ball.vel.y > 0) {
-				if (ball.y < racketsManager.getLeftRacket().y) {
-					onBallCollideTop(ball);
-				}
-				ball.y = (racketsManager.getLeftRacketBoundsTopY() - currentDec.y - bounds.height) / currentRatio - 2 * safetyGapSize;
-			}
-			// collide bottom of racket
-			else if (ball.vel.y < 0) {
-				if (ball.y > racketsManager.getLeftRacket().y) {
-					onBallCollideBottom(ball);
-				}
-				ball.y = (racketsManager.getLeftRacketBoundsBottomY() - currentDec.y) / currentRatio + 2 * safetyGapSize;
-			}
-		}
+                ball.x = racketsManager.getLeftRacketBoundsRightX();
+                onBallCollideLeft( ball );
 
-		// Right racket
-		else if (bounds.x + bounds.width > racketsManager.getRightRacketBoundsLeftX() &&
-			bounds.y + bounds.height > racketsManager.getRightRacketBoundsTopY() && 
-			bounds.y < racketsManager.getRightRacketBoundsBottomY()) {
+            } else if ( ball.nextX < racketsManager.getLeftRacketBoundsRightX() ) {
 
-			var rightRacketCenterY = (racketsManager.getLeftRacketBoundsTopY() + racketsManager.getLeftRacketBoundsBottomY()) * 0.5;
+                ballsManager.onBallOut( ball );
 
-			// collide top of racket
-			if (ball.vel.y > 0) {
-				if (ball.y < racketsManager.getRightRacket().y) {
-				onBallCollideTop(ball);
-				}
-					ball.y = (racketsManager.getRightRacketBoundsTopY() - currentDec.y - bounds.height) / currentRatio - 2 * safetyGapSize;
-			}
-			// collide bottom of racket
-			else if (ball.vel.y < 0) {
-				if (ball.y > racketsManager.getRightRacket().y) {
-				onBallCollideBottom(ball);
-				}
-					ball.y = (racketsManager.getRightRacketBoundsBottomY() - currentDec.y) / currentRatio + 2 * safetyGapSize;
-			}
-		}
-	}
+            }
+        }
+        // Test right collision
+        else if ( ball.nextX + ball.size >= racketsManager.getRightRacketBoundsLeftX() &&
+            ball.x + ball.size <= racketsManager.getRightRacketBoundsLeftX() ) {
+
+            // If the ball touches right racket
+            if ( ball.nextY + ball.size > racketsManager.getRightRacketBoundsTopY() &&
+                ball.nextY < racketsManager.getRightRacketBoundsBottomY() ) {
+
+                ball.x = racketsManager.getRightRacketBoundsLeftX() - ball.size;
+                onBallCollideRight( ball );
+
+            } else if ( ball.nextX + ball.size > racketsManager.getRightRacketBoundsLeftX() ) {
+
+                ballsManager.onBallOut( ball );
+
+            }
+        }
+    }
+
+    // If ball is out, test collision with top & bottom of rackets
+    if ( ball.out ) {
+
+        // Ball needs to be destroy
+        if ( ball.nextX + ball.width < racketsManager.getLeftRacketBoundsLeftX() - 40 * currentRatio ||
+            ball.nextX > racketsManager.getRightRacketBoundsRightX() + 40 * currentRatio ) {
+
+            ballsManager.onBallOutDestroy( ball );
+
+        }
+
+        // Left racket
+        else if ( ball.nextX < racketsManager.getLeftRacketBoundsRightX() &&
+            ball.nextY + ball.height > racketsManager.getLeftRacketBoundsTopY() &&
+            ball.nextY < racketsManager.getLeftRacketBoundsBottomY() ) {
+
+            var leftRacketCenterY = ( racketsManager.getLeftRacketBoundsTopY() + racketsManager.getLeftRacketBoundsBottomY() ) * 0.5;
+
+            // collide top of racket
+            if ( ball.vel.y > 0 ) {
+
+                onBallCollideTop( ball );
+
+                ball.y = racketsManager.getLeftRacketBoundsTopY() - ball.height - 2 * safetyGapSize;
+
+            }
+            // collide bottom of racket
+            else if ( ball.vel.y < 0 ) {
+
+                onBallCollideBottom( ball );
+
+                ball.y = racketsManager.getLeftRacketBoundsBottomY() + 2 * safetyGapSize;
+
+            }
+        }
+
+        // Right racket
+        else if ( ball.nextX + ball.width > racketsManager.getRightRacketBoundsLeftX() &&
+            ball.nextY + ball.height > racketsManager.getRightRacketBoundsTopY() &&
+            ball.nextY < racketsManager.getRightRacketBoundsBottomY() ) {
+
+            var rightRacketCenterY = ( racketsManager.getLeftRacketBoundsTopY() + racketsManager.getLeftRacketBoundsBottomY() ) * 0.5;
+
+            // collide top of racket
+            if ( ball.vel.y > 0 ) {
+
+                if ( ball.y < racketsManager.getRightRacket().y ) {
+
+                    onBallCollideTop( ball );
+
+                }
+
+                ball.y = ( racketsManager.getRightRacketBoundsTopY() - ball.height ) - 2 * safetyGapSize;
+
+            }
+            // collide bottom of racket
+            else if ( ball.vel.y < 0 ) {
+
+                if ( ball.y > racketsManager.getRightRacket().y ) {
+
+                    onBallCollideBottom( ball );
+
+                }
+
+                ball.y = racketsManager.getRightRacketBoundsBottomY() + 2 * safetyGapSize;
+
+            }
+        }
+    }
 }
 
-function onBallCollideTop(ball) {
-	ball.vel.y = -ball.vel.y;
-	ball.vel.x += ball.vel.x * 0.02; 
-	if (!ball.out) {
-		syncManager.onUpdateBall(ball, 't');
-	}
-	particlesManager.createBallCollideParticles(ball, 90);
+function onBallCollideTop( ball ) {
+
+    ball.vel.y = -ball.vel.y;
+    ball.vel.x += ball.vel.x * 0.02;
+    if ( !ball.out ) {
+
+        syncManager.onUpdateBall( ball, 't' );
+
+    }
+    particlesManager.createBallCollideParticles( ball, 90 );
+
 }
 
-function onBallCollideBottom(ball) {
-	ball.vel.y = -ball.vel.y;
-	ball.vel.x += ball.vel.x * 0.02; 
-	if (!ball.out) {
-		syncManager.onUpdateBall(ball, 'b');
-	}
-	particlesManager.createBallCollideParticles(ball, 270);
+function onBallCollideBottom( ball ) {
+
+    ball.vel.y = -ball.vel.y;
+    ball.vel.x += ball.vel.x * 0.02;
+    if ( !ball.out ) {
+
+        syncManager.onUpdateBall( ball, 'b' );
+
+    }
+    particlesManager.createBallCollideParticles( ball, 270 );
+
 }
 
-function onBallCollideLeft(ball) {
-	ball.vel.x = -ball.vel.x;
-	syncManager.onUpdateBall(ball, 'l');
-	particlesManager.createBallCollideParticles(ball, 0);
+function onBallCollideLeft( ball ) {
+
+    ball.vel.x = -ball.vel.x;
+    syncManager.onUpdateBall( ball, 'l' );
+    particlesManager.createBallCollideParticles( ball, 0 );
+
 }
 
-function onBallCollideRight(ball) {
-	ball.vel.x = -ball.vel.x;
-	syncManager.onUpdateBall(ball, 'r');
-	particlesManager.createBallCollideParticles(ball, 180);
+function onBallCollideRight( ball ) {
+
+    ball.vel.x = -ball.vel.x;
+    syncManager.onUpdateBall( ball, 'r' );
+    particlesManager.createBallCollideParticles( ball, 180 );
+
 }
 
-function applyMagnetForce(ball) {
-	if (ball.vel.x < 0) {
-		// ball.vel.y = (ball.vel.y - (racketsManager.getLeftRacket().getCenter().y - ball.y) * 0.1);
-		// ball.vel.y = ball.vel.y + (1/(ball.y - racketsManager.getLeftRacket().getCenter().y)) * 10
-		// console.log(ball.y - racketsManager.getLeftRacket().getCenter().y);
-	}
+function applyMagnetForce( ball ) {
+
+    if ( ball.vel.x < 0 ) {
+        // ball.vel.y = (ball.vel.y - (racketsManager.getLeftRacket().getCenter().y - ball.y) * 0.1);
+        // ball.vel.y = ball.vel.y + (1/(ball.y - racketsManager.getLeftRacket().getCenter().y)) * 10
+        // console.log(ball.y - racketsManager.getLeftRacket().getCenter().y);
+    }
+
 }
 
-function updateSceneResizeValues(dec, ratio) {
-	currentDec = dec;
-	currentRatio = ratio;
+function updateSceneResizeValues( dec, ratio ) {
+
+    currentDec = dec;
+    currentRatio = ratio;
+
 }
 
 module.exports = {
-	init: init,
-	update: update,
-	setVel: setVel,
-	addVel: addVel,
-	updateSceneResizeValues: updateSceneResizeValues
+    init: init,
+    update: update,
+    setVel: setVel,
+    addVel: addVel,
+    updateSceneResizeValues: updateSceneResizeValues
 };
 
 }).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/physicsEngine.js","/")
@@ -9313,7 +9372,7 @@ function init(scene) {
 
     rackets.left = new Racket();
 
-    rackets.right = new Racket(); 
+    rackets.right = new Racket();
 
     resetRacketsPositions();
 
@@ -9325,10 +9384,10 @@ function resetRacketsPositions() {
 
     var centerY = stageManager.getScene().getCenter().y;
 
-    rackets.left.x  = margin;
-    rackets.left.y  = centerY;
-    rackets.right.x = gameConfig.baseSceneWidth - margin; 
-    rackets.right.y = centerY ;
+    rackets.left.x = margin;
+    rackets.left.y = centerY;
+    rackets.right.x = gameConfig.baseSceneWidth - margin;
+    rackets.right.y = centerY;
 
     movePlayerRacketTo(centerY);
     moveOpponentRacketTo(centerY);
@@ -9337,7 +9396,7 @@ function resetRacketsPositions() {
 
 function setPlayerSide(isHost) {
 
-    playerSide   = isHost ? 'left'  : 'right';
+    playerSide = isHost ? 'left' : 'right';
     opponentSide = isHost ? 'right' : 'left';
 
 }
@@ -9348,7 +9407,7 @@ function movePlayerRacketTo(y, instant) {
 
     if (instant) {
 
-        rackets[playerSide].y = (rackets[playerSide].y + y) * 0.5;        
+        rackets[playerSide].y = (rackets[playerSide].y + y) * 0.5;
 
     }
 }
@@ -9359,7 +9418,7 @@ function moveOpponentRacketTo(y, instant) {
 
     if (instant) {
 
-        rackets[opponentSide].y = (rackets[opponentSide].y + y) * 0.5;        
+        rackets[opponentSide].y = (rackets[opponentSide].y + y) * 0.5;
 
     }
 }
@@ -9367,6 +9426,12 @@ function moveOpponentRacketTo(y, instant) {
 function movePlayerRacketBy(y) {
 
     movePlayerRacketTo(rackets[playerSide].y + y);
+
+}
+
+function getPlayerRacketY() {
+
+    return rackets[playerSide].y;
 
 }
 
@@ -9390,59 +9455,60 @@ function getRightRacket() {
 
 function getLeftRacketBoundsTopY() {
 
-    return rackets.left.getBounds().y;
+    return rackets.left.y - rackets.left.height / 2;
 
 }
 
 function getLeftRacketBoundsBottomY() {
 
-    return rackets.left.getBounds().y + rackets.left.getBounds().height;
+    return rackets.left.y + rackets.left.height / 2;
 
 }
 
 function getLeftRacketBoundsLeftX() {
 
-    return rackets.left.getBounds().x;
+    return rackets.left.x - rackets.left.width / 2;
 
 }
 
 function getLeftRacketBoundsRightX() {
 
-    return rackets.left.getBounds().x + rackets.left.getBounds().width;
+    return rackets.left.x + rackets.left.width / 2;
 
 }
 
 function getRightRacketBoundsTopY() {
 
-    return rackets.right.getBounds().y;
+    return rackets.right.y - rackets.right.height / 2;
 
 }
 
 function getRightRacketBoundsBottomY() {
 
-    return rackets.right.getBounds().y + rackets.right.getBounds().height;
+    return rackets.right.y + rackets.right.height / 2;
 
 }
 
 function getRightRacketBoundsLeftX() {
 
-    return rackets.right.getBounds().x;
+    return rackets.right.x - rackets.right.width / 2;
 
 }
 
 function getRightRacketBoundsRightX() {
 
-    return rackets.right.getBounds().x + rackets.right.getBounds().width;
+    return rackets.right.x + rackets.right.width / 2;
 
 }
 
 module.exports = {
-	init: init,
+    init: init,
     resetRacketsPositions: resetRacketsPositions,
     setPlayerSide: setPlayerSide,
     movePlayerRacketTo: movePlayerRacketTo,
     moveOpponentRacketTo: moveOpponentRacketTo,
     movePlayerRacketBy: movePlayerRacketBy,
+    getPlayerRacketY: getPlayerRacketY,
     getPlayerRacketMovingToY: getPlayerRacketMovingToY,
     getLeftRacket: getLeftRacket,
     getRightRacket: getRightRacket,
@@ -9733,6 +9799,7 @@ function update( time ) {
 
         setRGBSplitFilterSize( time );
         desktopControlsManager.update( delta );
+        touchControlsManager.update( delta );
         physicsEngine.update( delta );
         particlesManager.update( delta );
 
@@ -9830,12 +9897,20 @@ function setRGBSplitFilterSize( time, size ) {
 
 }
 
-function sceneLocalX( x ) {
+function globalToSceneLocalX( x ) {
     return ( x - dec.x ) / ratio;
 }
 
-function sceneLocalY( y ) {
+function globalToSceneLocalY( y ) {
     return ( y - dec.y ) / ratio;
+}
+
+function sceneLocalToGlobalX( x ) {
+    return ( x + dec.x ) * ratio;
+}
+
+function sceneLocalToGlobalY( y ) {
+    return ( y + dec.y ) * ratio;
 }
 
 function getScene() {
@@ -9859,8 +9934,10 @@ module.exports = {
     setPixelShaderSize: setPixelShaderSize,
     getScene: getScene,
     getStage: getStage,
-    sceneLocalX: sceneLocalX,
-    sceneLocalY: sceneLocalY,
+    globalToSceneLocalX: globalToSceneLocalX,
+    globalToSceneLocalY: globalToSceneLocalY,
+    sceneLocalToGlobalX: sceneLocalToGlobalX,
+    sceneLocalToGlobalY: sceneLocalToGlobalY,    
     getDec: getDec,
     getRatio: getRatio
 };
@@ -9916,6 +9993,8 @@ function onSync( data ) {
 
         if ( destroyedBall ) {
 
+            destroyedBall.x = data.pos.x;
+            destroyedBall.y = data.pos.y;
             ballsManager.destroyBall( destroyedBall );
 
         }
@@ -9979,7 +10058,11 @@ function onBallDestroy( ball ) {
 
     var data = {
         event: 'destroyBall',
-        ID: ball.ID
+        ID: ball.ID,
+        pos: {
+            x: ball.x,
+            y: ball.y
+        }
     };
     socketsManager.emit( 'sync', data );
 }
@@ -10008,57 +10091,90 @@ module.exports = {
 }).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/syncManager.js","/")
 },{"buffer":1,"htZkx4":4}],22:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
-var touchStates = {
-    left: false,
-    right: false
-};
+var touch = -1,
+    resetTimeout;
 
 
 function init() {
 
     $( document ).on( 'touchstart', onTouchStart );
+    $( document ).on( 'touchmove', onTouchMove );
     $( document ).on( 'touchend', onTouchEnd );
 
 }
 
 function update( delta ) {
 
-    if ( touchStates.left && touchStates.right || !touchStates.left && !touchStates.right ) {
-
-        racketsManager.movePlayerRacketTo( gameConfig.baseSceneHeight * 0.5 );
-
-    } else if ( touchStates.left ) {
-
-        racketsManager.movePlayerRacketTo( gameConfig.baseSceneHeight );
-
-    } else if ( touchStates.right ) {
-
-        racketsManager.movePlayerRacketTo( 0 );
-
-    }
+    
 }
 
 function onTouchStart( event ) {
 
-    for ( var i = event.originalEvent.touches.length - 1; i >= 0; i-- ) {
+    clearTimeout(resetTimeout);
+    touch = event.originalEvent.touches[0].clientY;
 
-        var side = event.originalEvent.touches[ i ].clientX < gameConfig.width / 2 ? 'left' : 'right';
-        touchStates[ side ] = true;
-        // console.log( side, touchStates[ side ], event.originalEvent.touches[ i ].clientX, gameConfig.width );
+    console.log('touchstart');
 
-    }
+}
 
-    update();
+function onTouchMove( event ) {
+
+    var distance = gameConfig.height / (event.originalEvent.changedTouches[ 0 ].clientY - touch);
+    console.log('touchmove', distance);
+
+    racketsManager.movePlayerRacketTo( gameConfig.baseSceneHeight * 0.5 + gameConfig.baseSceneHeight * 2 / distance);
 
 }
 
 function onTouchEnd( event ) {
 
-    var side = event.originalEvent.changedTouches[ 0 ].clientX < gameConfig.width / 2 ? 'left' : 'right';
-    touchStates[ side ] = false;
-    update();
+    touch = racketsManager.getPlayerRacketMovingToY;
+
+    resetTimeout = setTimeout(function() {
+        racketsManager.movePlayerRacketTo( gameConfig.baseSceneHeight * 0.5 );
+    }, 150);
 
 }
+
+
+// function update( delta ) {
+
+//     if ( touchStates.left && touchStates.right || !touchStates.left && !touchStates.right ) {
+
+//         racketsManager.movePlayerRacketTo( gameConfig.baseSceneHeight * 0.5 );
+
+//     } else if ( touchStates.left ) {
+
+//         racketsManager.movePlayerRacketTo( gameConfig.baseSceneHeight );
+
+//     } else if ( touchStates.right ) {
+
+//         racketsManager.movePlayerRacketTo( 0 );
+
+//     }
+// }
+
+// function onTouchStart( event ) {
+
+//     for ( var i = event.originalEvent.touches.length - 1; i >= 0; i-- ) {
+
+//         var side = event.originalEvent.touches[ i ].clientX < gameConfig.width / 2 ? 'left' : 'right';
+//         touchStates[ side ] = true;
+//         // console.log( side, touchStates[ side ], event.originalEvent.touches[ i ].clientX, gameConfig.width );
+
+//     }
+
+//     update();
+
+// }
+
+// function onTouchEnd( event ) {
+
+//     var side = event.originalEvent.changedTouches[ 0 ].clientX < gameConfig.width / 2 ? 'left' : 'right';
+//     touchStates[ side ] = false;
+//     update();
+
+// }
 
 module.exports = {
     init: init,

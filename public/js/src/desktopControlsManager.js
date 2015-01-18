@@ -27,7 +27,7 @@ function update( delta ) {
     } else if ( lastMouseY !== mouseY ) {
 
         // sync mouse position if moved by more than 24px (local)
-        if ( Math.abs( lastSentY - stageManager.sceneLocalY( mouseY ) ) > 24 ) {
+        if ( Math.abs( lastSentY - stageManager.globalToSceneLocalY( mouseY ) ) > 24 ) {
 
             sendSyncPosition( mouseY, false );
 
@@ -48,9 +48,13 @@ function sendSyncPosition( y, instant ) {
 function onMouseMove( event ) {
 
     mouseY = event.pageY || event.originalEvent.touches && event.originalEvent.touches[ 0 ].pageY;
-    racketsManager.movePlayerRacketTo( stageManager.sceneLocalY( mouseY ), false );
-    mouseStopTime = 0;
+    
+    if (mouseY !== undefined) {
 
+        racketsManager.movePlayerRacketTo( stageManager.globalToSceneLocalY( mouseY ), false );
+        mouseStopTime = 0;
+        
+    }
 }
 
 module.exports = {

@@ -1,7 +1,7 @@
-Ball = function(ID, pos, color, radius) {
+Ball = function(ID, pos, color, size) {
     PIXI.DisplayObjectContainer.call( this );
     this.ID = ID;
-    this.radius = radius || 28;
+    this.size = size || 28;
     this.color  = color  || parseInt(Please.make_color().slice(1), 16);
     this.colorHex = '#' + this.color.toString(16);
     this.vel = new Vector2(0, 0);
@@ -11,7 +11,7 @@ Ball = function(ID, pos, color, radius) {
 
 	var graphics = new PIXI.Graphics();
 	graphics.beginFill(this.color);
-	graphics.drawRect(0, 0, this.radius, this.radius);
+	graphics.drawRect(0, 0, this.size, this.size);
     this.addChild(graphics);
 
     this.x = pos ? pos.x : 0;

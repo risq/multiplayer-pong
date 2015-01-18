@@ -229,12 +229,20 @@ function setRGBSplitFilterSize( time, size ) {
 
 }
 
-function sceneLocalX( x ) {
+function globalToSceneLocalX( x ) {
     return ( x - dec.x ) / ratio;
 }
 
-function sceneLocalY( y ) {
+function globalToSceneLocalY( y ) {
     return ( y - dec.y ) / ratio;
+}
+
+function sceneLocalToGlobalX( x ) {
+    return ( x + dec.x ) * ratio;
+}
+
+function sceneLocalToGlobalY( y ) {
+    return ( y + dec.y ) * ratio;
 }
 
 function getScene() {
@@ -258,8 +266,10 @@ module.exports = {
     setPixelShaderSize: setPixelShaderSize,
     getScene: getScene,
     getStage: getStage,
-    sceneLocalX: sceneLocalX,
-    sceneLocalY: sceneLocalY,
+    globalToSceneLocalX: globalToSceneLocalX,
+    globalToSceneLocalY: globalToSceneLocalY,
+    sceneLocalToGlobalX: sceneLocalToGlobalX,
+    sceneLocalToGlobalY: sceneLocalToGlobalY,    
     getDec: getDec,
     getRatio: getRatio
 };

@@ -32,7 +32,7 @@ function onGameReady(newGameRoomID, newGameIsHost) {
     racketsManager.resetRacketsPositions();
 
     if (isHost) {
-        ballsManager.createBalls(48, null, 650, 500, 4);
+        ballsManager.createBalls(64, null, 650, 500, 4);
         // ballsManager.createBall({
         //     pos: new Vector2(60, 10), 
         //     vel: new Vector2(-40, 300)

@@ -244,6 +244,7 @@ C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\a
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\index.html \
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\js \
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\mobile \
+C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\package.json \
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\remote \
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\textures \
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\vendor \

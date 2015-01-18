@@ -4,10 +4,10 @@ Racket = function(pos, color) {
     this.color = color || 0xFFFFFF;
     this.size = 240;
 
-    var graphics = new PIXI.Graphics();
-    graphics.beginFill(this.color);
-    graphics.drawRect(0, 0, 40, this.size);
-    this.addChild(graphics);
+    this.graphics = new PIXI.Graphics();
+    this.graphics.beginFill(this.color);
+    this.graphics.drawRect(0, 0, 40, this.size);
+    this.addChild(this.graphics);
 
     this.vel = new Vector2();
 
