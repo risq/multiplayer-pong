@@ -8856,7 +8856,7 @@ function onDeviceReady() {
 	appManager.init();
 }
 
-}).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_408e8d04.js","/")
+}).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_e9ff0d90.js","/")
 },{"./appManager":6,"./ballsManager":7,"./desktopControlsManager":13,"./hudManager":15,"./particlesManager":16,"./physicsEngine":17,"./racketsManager":18,"./shadersManager":19,"./socketsManager":20,"./stageManager":21,"./syncManager":22,"./touchControlsManager":23,"buffer":1,"htZkx4":4}],15:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var Hud = require('./class/Hud');
@@ -9101,7 +9101,7 @@ function addVel( object, vel ) {
 function updateRackets() {
 
     updateRacket( racketsManager.getPlayerRacket(), playerRacketSpeed );
-    updateRacket( racketsManager.getOpponentRacket(), opponentRacketSpeed ); // update opponent racket with higher speed to correct lag offset
+    updateRacket( racketsManager.getOpponentRacket(), opponentRacketSpeed ); 
 
 }
 
@@ -9356,6 +9356,7 @@ function setRacketsSpeed( isHost ) {
 
     if (isHost) {
 
+        // update opponent racket with higher speed to correct lag offset
         opponentRacketSpeed = 16;
 
     } else {
@@ -9363,8 +9364,6 @@ function setRacketsSpeed( isHost ) {
         opponentRacketSpeed = 8;
 
     }
-
-    console.log('opponentRacketSpeed', opponentRacketSpeed);
 }
 
 module.exports = {

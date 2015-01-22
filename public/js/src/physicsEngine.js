@@ -42,7 +42,7 @@ function addVel( object, vel ) {
 function updateRackets() {
 
     updateRacket( racketsManager.getPlayerRacket(), playerRacketSpeed );
-    updateRacket( racketsManager.getOpponentRacket(), opponentRacketSpeed ); // update opponent racket with higher speed to correct lag offset
+    updateRacket( racketsManager.getOpponentRacket(), opponentRacketSpeed ); 
 
 }
 
@@ -297,6 +297,7 @@ function setRacketsSpeed( isHost ) {
 
     if (isHost) {
 
+        // update opponent racket with higher speed to correct lag offset
         opponentRacketSpeed = 16;
 
     } else {
@@ -304,8 +305,6 @@ function setRacketsSpeed( isHost ) {
         opponentRacketSpeed = 8;
 
     }
-
-    console.log('opponentRacketSpeed', opponentRacketSpeed);
 }
 
 module.exports = {
