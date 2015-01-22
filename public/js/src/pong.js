@@ -17,6 +17,7 @@ global.racketsManager         = require('./racketsManager');
 global.socketsManager         = require('./socketsManager');
 global.stageManager           = require('./stageManager');
 global.syncManager            = require('./syncManager');
+global.shadersManager         = require('./shadersManager');
 
 
 if ( window.location.protocol === "file:" ) {
