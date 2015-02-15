@@ -8429,14 +8429,14 @@ Hud = function() {
     this.addChild(this.infos);
 
     this.debug1 = new PIXI.Text('');
-    this.debug1.x = 100;
-    this.debug1.y = 400;
-    this.addChild(this.debug1);
+    // this.debug1.x = 100;
+    // this.debug1.y = 400;
+    // this.addChild(this.debug1);
 
     this.debug2 = new PIXI.Text('');
-    this.debug2.x = 400;
-    this.debug2.y = 400;
-    this.addChild(this.debug2);
+    // this.debug2.x = 400;
+    // this.debug2.y = 400;
+    // this.addChild(this.debug2);
 
 };
 
@@ -8451,13 +8451,13 @@ Hud.prototype.setInfosText = function(text) {
 };
 
 Hud.prototype.setDebug1Text = function(text) {
-    this.debug1.setText(text);
-    this.debug1.setStyle({fill: Please.make_color()});
+    // this.debug1.setText(text);
+    // this.debug1.setStyle({fill: Please.make_color()});
 };
 
 Hud.prototype.setDebug2Text = function(text) {
-    this.debug2.setText(text);
-    this.debug2.setStyle({fill: Please.make_color()});
+    // this.debug2.setText(text);
+    // this.debug2.setStyle({fill: Please.make_color()});
 };
 
 
@@ -8856,7 +8856,7 @@ function onDeviceReady() {
 	appManager.init();
 }
 
-}).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_59090148.js","/")
+}).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_d20ff17b.js","/")
 },{"./appManager":6,"./ballsManager":7,"./desktopControlsManager":13,"./hudManager":15,"./particlesManager":16,"./physicsEngine":17,"./racketsManager":18,"./shadersManager":19,"./socketsManager":20,"./stageManager":21,"./syncManager":22,"./touchControlsManager":23,"buffer":1,"htZkx4":4}],15:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var Hud = require('./class/Hud');
@@ -9803,7 +9803,6 @@ function initApp () {
     });
 
     socket.on('opponent disconnect', function() {
-        console.log('disconnected');
         hudManager.setInfosText('Opponent disconnected...');
         appManager.onOpponentDisconnect();
     });
@@ -10198,25 +10197,27 @@ function onTouchStart( event ) {
     clearTimeout(resetTimeout);
     touch = event.originalEvent.touches[0].clientY;
 
-    console.log('touchstart');
-
 }
 
 function onTouchMove( event ) {
 
-    var distance = gameConfig.height / (event.originalEvent.changedTouches[ 0 ].clientY - touch);
-    console.log('touchmove', distance);
+    var distance = gameConfig.height / (event.originalEvent.changedTouches[ 0 ].clientY - touch),
+        destY = gameConfig.baseSceneHeight * 0.5 + gameConfig.baseSceneHeight * 2 / distance;
 
-    racketsManager.movePlayerRacketTo( gameConfig.baseSceneHeight * 0.5 + gameConfig.baseSceneHeight * 2 / distance);
+    racketsManager.movePlayerRacketTo( destY );
+    syncManager.onRacketSetMovingToY( destY );
 
 }
 
 function onTouchEnd( event ) {
 
-    touch = racketsManager.getPlayerRacketMovingToY;
+    touch = -1;
 
     resetTimeout = setTimeout(function() {
+
         racketsManager.movePlayerRacketTo( gameConfig.baseSceneHeight * 0.5 );
+        syncManager.onRacketSetMovingToY( gameConfig.baseSceneHeight * 0.5 );
+
     }, 150);
 
 }
