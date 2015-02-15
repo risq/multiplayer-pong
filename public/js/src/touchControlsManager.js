@@ -20,25 +20,27 @@ function onTouchStart( event ) {
     clearTimeout(resetTimeout);
     touch = event.originalEvent.touches[0].clientY;
 
-    console.log('touchstart');
-
 }
 
 function onTouchMove( event ) {
 
-    var distance = gameConfig.height / (event.originalEvent.changedTouches[ 0 ].clientY - touch);
-    console.log('touchmove', distance);
+    var distance = gameConfig.height / (event.originalEvent.changedTouches[ 0 ].clientY - touch),
+        destY = gameConfig.baseSceneHeight * 0.5 + gameConfig.baseSceneHeight * 2 / distance;
 
-    racketsManager.movePlayerRacketTo( gameConfig.baseSceneHeight * 0.5 + gameConfig.baseSceneHeight * 2 / distance);
+    racketsManager.movePlayerRacketTo( destY );
+    syncManager.onRacketSetMovingToY( destY );
 
 }
 
 function onTouchEnd( event ) {
 
-    touch = racketsManager.getPlayerRacketMovingToY;
+    touch = -1;
 
     resetTimeout = setTimeout(function() {
+
         racketsManager.movePlayerRacketTo( gameConfig.baseSceneHeight * 0.5 );
+        syncManager.onRacketSetMovingToY( gameConfig.baseSceneHeight * 0.5 );
+
     }, 150);
 
 }

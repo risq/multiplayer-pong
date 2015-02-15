@@ -112,7 +112,6 @@ function initApp () {
     });
 
     socket.on('opponent disconnect', function() {
-        console.log('disconnected');
         hudManager.setInfosText('Opponent disconnected...');
         appManager.onOpponentDisconnect();
     });
