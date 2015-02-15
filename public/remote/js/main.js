@@ -1,4 +1,5 @@
 $(function() {
+	console.log('init');
 	mobileInit();
 });
 
@@ -65,23 +66,27 @@ var MobileController = {
 	},
 
 
-	bindActionController			: function () {
+	bindActionController: function () {
 
 		var self = this;
 
 		$('#button-top').on('touchstart', function() {
 			self.socket.emit('mobileTop');
+			console.log('mobileTop');
 		})
 		.on('touchend', function(){
 			self.socket.emit('mobileStop');
+			console.log('mobileStop');
 		});
 
 
 		$('#button-bottom').on('touchstart', function() {
 			self.socket.emit('mobileBottom');
+			console.log('mobileBottom');
 		})
 		.on('touchend', function(){
 			self.socket.emit('mobileStop');
+			console.log('mobileStop');
 		});;
 	},
 

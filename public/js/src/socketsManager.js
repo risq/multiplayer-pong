@@ -78,30 +78,41 @@ function initApp () {
     var gameRoomID;
 
     socket.on('mobile top', function() {
-        hudManager.setDebug1Text('YOU: top');
+        var destY = racketsManager.getPlayerRacketY() - 340;
+        racketsManager.movePlayerRacketTo( destY, false );
+        syncManager.onRacketSetMovingToY( destY );
+        // hudManager.setDebug1Text('YOU: top');
     });
 
     socket.on('mobile bottom', function() {
-        hudManager.setDebug1Text('YOU: bottom');
+        var destY = racketsManager.getPlayerRacketY() + 340;
+        racketsManager.movePlayerRacketTo( destY, false );
+        syncManager.onRacketSetMovingToY( destY );
+        // hudManager.setDebug1Text('YOU: bottom');
     });
 
     socket.on('mobile stop', function() {
-        hudManager.setDebug1Text('YOU: ');
+        // hudManager.setDebug1Text('YOU: ');
     });
 
     socket.on('opponent top', function() {
-        hudManager.setDebug2Text('HIM: top');
+        racketsManager.moveOpponentRacketTo( racketsManager.getOpponentRacketY() - 340, false );
+
+        // hudManager.setDebug2Text('HIM: top');
     });
 
     socket.on('opponent bottom', function() {
-        hudManager.setDebug2Text('HIM: bottom');
+        racketsManager.moveOpponentRacketTo( racketsManager.getOpponentRacketY() + 340, false );
+
+        // hudManager.setDebug2Text('HIM: bottom');
     });
 
     socket.on('opponent stop', function() {
-        hudManager.setDebug2Text('HIM: ');
+        // hudManager.setDebug2Text('HIM: ');
     });
 
     socket.on('opponent disconnect', function() {
+        console.log('disconnected');
         hudManager.setInfosText('Opponent disconnected...');
         appManager.onOpponentDisconnect();
     });

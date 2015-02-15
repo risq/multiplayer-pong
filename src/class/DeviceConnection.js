@@ -38,9 +38,6 @@ p.sendConnectionReady = function() {
     this.onConnectionReadyCallback(this);
 };
 
-/*
- * Active events for the two socket
- */
 p.initEvents = function(player) {
     this.desktop.on('sync', player.onSync.bind(player));
     this.desktop.on('disconnect', player.onDisconnect.bind(player));

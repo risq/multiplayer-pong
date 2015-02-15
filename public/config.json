@@ -1,5 +1,5 @@
 {
-	"url_server" : "m-pong.dev.valentinledrapier.com",
-	"url" : "mpong.herokuapp.com",
+	"url_dist" : "mpong.valentinledrapier.com",
+	"url" : "localhost",
 	"port" : 80
 }

@@ -19,10 +19,14 @@ global.stageManager           = require('./stageManager');
 global.syncManager            = require('./syncManager');
 
 
-if ( window.location.protocol === "file:" ) {
+if ( window.location.protocol === "file:" ) { // cordova
+
 	document.addEventListener("deviceready", onDeviceReady, false);
+
 } else {
+
 	appManager.init();
+
 }
 
 function onDeviceReady() {

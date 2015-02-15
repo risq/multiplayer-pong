@@ -51,6 +51,7 @@ p.onMobileStop = function() {
 
 p.onDisconnect = function() {
     this.emitOpponent('opponent disconnect');
+    console.log('opponent disconnect');
 
     setTimeout(function () {
         gameRoomsManager.onPlayerDisconnect(this.room.ID, this.isHost);
