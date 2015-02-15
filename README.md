@@ -1,5 +1,4 @@
 # multiplayer-pong
------------------------
 
 
 ##Testing
@@ -15,8 +14,11 @@
 Edit `./public/config.json` and specify the local url & port (defaults are `localhost` & `80` ). Then :
 
 > cd multiplayer-pong
+
 > npm install
+
 > gulp bundle:dev
+
 > node app.js
 
 
@@ -25,6 +27,7 @@ Edit `./public/config.json` and specify the local url & port (defaults are `loca
 ### Building static files :
 
 > gulp build
+
 > cp -R dist/* cordova/www/
 
 ### Building Cordova-Crosswalk core :
@@ -32,9 +35,13 @@ Edit `./public/config.json` and specify the local url & port (defaults are `loca
 ( See https://crosswalk-project.org/documentation/cordova/migrate_an_application.html )
 
 > cd cordova/platforms/android/CordovaLib/
+
 > android update project --subprojects --path . --target "android-19"
+
 > ant debug
+
 > cd ../../..
+
 > cordova build
 
 
