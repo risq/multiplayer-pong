@@ -1,6 +1,6 @@
 var startTime = new Date(),
     gameRoomID,
-    isHost,
+    playerIsHost,
     controlMode,
     state = 'waiting';
 
@@ -25,13 +25,15 @@ function onConnectionReady(mode) {
 
 function onGameReady(newGameRoomID, newGameIsHost) {
     gameRoomID = newGameRoomID;
-    isHost = newGameIsHost;
+    playerIsHost = newGameIsHost;
     state = 'ready';
 
-    racketsManager.setPlayerSide(isHost);
+    racketsManager.setPlayerSide(playerIsHost);
     racketsManager.resetRacketsPositions();
 
-    if (isHost) {
+    physicsEngine.setRacketsSpeed(playerIsHost);
+
+    if (playerIsHost) {
         ballsManager.createBalls(64, null, 650, 2000, 4);
     }
 }
@@ -45,8 +47,8 @@ function getState() {
     return state;
 }
 
-function getIsHost() {
-    return isHost;
+function isHost() {
+    return playerIsHost;
 }
 
 function getMode() {
@@ -60,6 +62,6 @@ module.exports =  {
     onGameReady: onGameReady,
     onOpponentDisconnect: onOpponentDisconnect,
     getState: getState,
-    getIsHost: getIsHost,
+    isHost: isHost,
     getMode: getMode
 };

@@ -9,11 +9,7 @@ var renderer,
     delta = 0,
     dec = new Vector2(),
     ratio = 1,
-    pixelateFilter,
     background,
-    colorStepFilter,
-    scanFilter,
-    rgbSplitFilter,
     checkDeltaInterval,
     startTime,
     emitter,
@@ -29,56 +25,7 @@ function init() {
     renderer = PIXI.autoDetectRenderer( window.innerWidth, window.innerHeight, null, false, true );
     document.getElementById( 'game' ).appendChild( renderer.view );
 
-
-    var uniforms = {};
-    uniforms.power = {
-        type: '1f',
-        value: 1 / 1000
-    };
-    uniforms.noise = {
-        type: '1f',
-        value: 0.2
-    };
-
-    //// grain filter..
-
-    var fragmentSrc = [
-
-        'precision mediump float;',
-        'varying vec2 vTextureCoord;',
-        'varying vec4 vColor;',
-        'uniform sampler2D uSampler;',
-        'uniform float noise;',
-        'uniform float power;',
-
-        'float rand(vec2 co) {',
-        '    return fract(sin(dot(co.xy ,vec2(12.9898,78.233 * noise))) * 43758.5453);',
-        '}',
-
-        'void main(void) {',
-        '   vec2 cord = vTextureCoord;',
-        '   cord.y += noise * 0.001;',
-
-        '    vec4 color = texture2D(uSampler, vTextureCoord);',
-
-        '    float diff = (rand(vTextureCoord) - 0.5) * 0.075;',
-        '    color.r += diff;',
-        '    color.g += diff;',
-        '    color.b += diff;',
-
-        '   gl_FragColor = color;',
-        '}'
-    ];
-
-    scanFilter = new PIXI.AbstractFilter( fragmentSrc, uniforms );
-
-    rgbSplitFilter = new PIXI.RGBSplitFilter();
-    setRGBSplitFilterSize( 3 );
-
-
-    pixelateFilter = new PIXI.PixelateFilter();
-    pixelateFilter.size.x = 3;
-    pixelateFilter.size.y = 3;
+    
 
     stats = new Stats();
     stats.domElement.style.position = 'absolute';
@@ -98,13 +45,12 @@ function init() {
 
     window.onresize = updateGameSize;
 
-    stage.filters = [ pixelateFilter, rgbSplitFilter ];
-    // stage.filters = [pixelateFilter];
 
     hudManager.init();
     racketsManager.init();
     physicsEngine.init();
     particlesManager.init();
+    shadersManager.init();
 
 
 
@@ -123,17 +69,11 @@ function update( time ) {
         delta = ( time - lastTime ) * 0.001;
         lastTime = time;
 
-        // scanFilter.uniforms.power.value += (ease -  scanFilter.uniforms.power.value ) * 0.3;
-
-        // scanFilter.uniforms.noise.value += 0.1;
-        // scanFilter.uniforms.noise.value %= 1;
-        // scanFilter.syncUniforms();
-
-        setRGBSplitFilterSize( time );
         desktopControlsManager.update( delta );
         touchControlsManager.update( delta );
         physicsEngine.update( delta );
         particlesManager.update( delta );
+        shadersManager.update( delta, time );
 
         stats.update();
 
@@ -200,35 +140,6 @@ function updateGameSize() {
 
 }
 
-function setPixelShaderSize( size ) {
-
-    pixelateFilter.size.x = size;
-    pixelateFilter.size.y = size;
-
-}
-
-function setRGBSplitFilterSize( time, size ) {
-
-    size = size || 2;
-    var value = time / 160;
-
-    rgbSplitFilter.red = {
-        x: Math.cos( value ) * size,
-        y: Math.sin( value ) * size
-    };
-
-    rgbSplitFilter.green = {
-        x: Math.cos( value + Math.PI * 2 / 3 ) * size,
-        y: Math.sin( value + Math.PI * 2 / 3 ) * size
-    };
-
-    rgbSplitFilter.blue = {
-        x: Math.cos( value + Math.PI * 4 / 3 ) * size,
-        y: Math.sin( value + Math.PI * 4 / 3 ) * size
-    };
-
-}
-
 function globalToSceneLocalX( x ) {
     return ( x - dec.x ) / ratio;
 }
@@ -263,7 +174,6 @@ function getRatio() {
 
 module.exports = {
     init: init,
-    setPixelShaderSize: setPixelShaderSize,
     getScene: getScene,
     getStage: getStage,
     globalToSceneLocalX: globalToSceneLocalX,

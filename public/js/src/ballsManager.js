@@ -68,14 +68,14 @@ function removeBall(ball) {
 }
 
 function onBallOut(ball) {
-    if (appManager.getIsHost()) {
+    if (appManager.isHost()) {
         syncManager.onBallOut(ball);
         setBallOut(ball);
     }
 }
 
 function onBallOutDestroy(ball) {
-    if (appManager.getIsHost()) {
+    if (appManager.isHost()) {
         syncManager.onBallDestroy(ball);
         destroyBall(ball);
     }
@@ -90,6 +90,7 @@ function setBallOut(ball) {
 
 function destroyBall(ball) {
     particlesManager.createBallExplodeParticles(ball);
+    shadersManager.glitch(10);
     removeBall(ball);
 }
 

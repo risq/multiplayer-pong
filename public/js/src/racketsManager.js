@@ -100,6 +100,18 @@ function getRightRacket() {
 
 }
 
+function getPlayerRacket() {
+
+    return rackets[playerSide];
+
+}
+
+function getOpponentRacket() {
+
+    return rackets[opponentSide];
+
+}
+
 function getLeftRacketBoundsTopY() {
 
     return rackets.left.y - rackets.left.height / 2;
@@ -160,6 +172,8 @@ module.exports = {
     getPlayerRacketMovingToY: getPlayerRacketMovingToY,
     getLeftRacket: getLeftRacket,
     getRightRacket: getRightRacket,
+    getPlayerRacket: getPlayerRacket,
+    getOpponentRacket: getOpponentRacket,    
     getLeftRacketBoundsTopY: getLeftRacketBoundsTopY,
     getLeftRacketBoundsLeftX: getLeftRacketBoundsLeftX,
     getLeftRacketBoundsBottomY: getLeftRacketBoundsBottomY,

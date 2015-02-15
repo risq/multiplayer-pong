@@ -1,5 +1,5 @@
 {
-	"url_dist" : "mpong.valentinledrapier.com",
-	"url" : "localhost",
+	"url" : "mpong.valentinledrapier.com",
+	"url_loc" : "localhost",
 	"port" : 80
 }

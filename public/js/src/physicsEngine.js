@@ -5,7 +5,9 @@ var currentDelta = 0,
     currentDec = new Vector2(),
     currentRatio = 1,
     safetyGapSize = 6,
-    racketsMargin = 34;
+    racketsMargin = 34,
+    playerRacketSpeed = 8,
+    opponentRacketSpeed = 8;
 
 
 function init() {
@@ -39,16 +41,16 @@ function addVel( object, vel ) {
 
 function updateRackets() {
 
-    updateRacket( racketsManager.getLeftRacket() );
-    updateRacket( racketsManager.getRightRacket() );
+    updateRacket( racketsManager.getPlayerRacket(), playerRacketSpeed );
+    updateRacket( racketsManager.getOpponentRacket(), opponentRacketSpeed ); 
 
 }
 
-function updateRacket( racket ) {
+function updateRacket( racket, speed ) {
 
     if ( Math.abs( racket.y - racket.movingToY ) > 1 ) {
 
-        racket.y += ( racket.movingToY - racket.y ) * 8 * currentDelta;
+        racket.y += ( racket.movingToY - racket.y ) * speed * currentDelta;
 
     } else {
 
@@ -291,10 +293,25 @@ function updateSceneResizeValues( dec, ratio ) {
 
 }
 
+function setRacketsSpeed( isHost ) {
+
+    if (isHost) {
+
+        // update opponent racket with higher speed to correct lag offset
+        opponentRacketSpeed = 16;
+
+    } else {
+
+        opponentRacketSpeed = 8;
+
+    }
+}
+
 module.exports = {
     init: init,
     update: update,
     setVel: setVel,
     addVel: addVel,
+    setRacketsSpeed: setRacketsSpeed,
     updateSceneResizeValues: updateSceneResizeValues
 };

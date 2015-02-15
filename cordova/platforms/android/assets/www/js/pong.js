@@ -8187,7 +8187,7 @@ process.chdir = function (dir) {
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var startTime = new Date(),
     gameRoomID,
-    isHost,
+    playerIsHost,
     controlMode,
     state = 'waiting';
 
@@ -8212,18 +8212,16 @@ function onConnectionReady(mode) {
 
 function onGameReady(newGameRoomID, newGameIsHost) {
     gameRoomID = newGameRoomID;
-    isHost = newGameIsHost;
+    playerIsHost = newGameIsHost;
     state = 'ready';
 
-    racketsManager.setPlayerSide(isHost);
+    racketsManager.setPlayerSide(playerIsHost);
     racketsManager.resetRacketsPositions();
 
-    if (isHost) {
-        ballsManager.createBalls(64, null, 650, 500, 4);
-        // ballsManager.createBall({
-        //     pos: new Vector2(60, 10), 
-        //     vel: new Vector2(-40, 300)
-        // });
+    physicsEngine.setRacketsSpeed(playerIsHost);
+
+    if (playerIsHost) {
+        ballsManager.createBalls(64, null, 650, 2000, 4);
     }
 }
 
@@ -8236,8 +8234,8 @@ function getState() {
     return state;
 }
 
-function getIsHost() {
-    return isHost;
+function isHost() {
+    return playerIsHost;
 }
 
 function getMode() {
@@ -8251,7 +8249,7 @@ module.exports =  {
     onGameReady: onGameReady,
     onOpponentDisconnect: onOpponentDisconnect,
     getState: getState,
-    getIsHost: getIsHost,
+    isHost: isHost,
     getMode: getMode
 };
 
@@ -8328,14 +8326,14 @@ function removeBall(ball) {
 }
 
 function onBallOut(ball) {
-    if (appManager.getIsHost()) {
+    if (appManager.isHost()) {
         syncManager.onBallOut(ball);
         setBallOut(ball);
     }
 }
 
 function onBallOutDestroy(ball) {
-    if (appManager.getIsHost()) {
+    if (appManager.isHost()) {
         syncManager.onBallDestroy(ball);
         destroyBall(ball);
     }
@@ -8350,6 +8348,7 @@ function setBallOut(ball) {
 
 function destroyBall(ball) {
     particlesManager.createBallExplodeParticles(ball);
+    shadersManager.glitch(10);
     removeBall(ball);
 }
 
@@ -8840,20 +8839,25 @@ global.racketsManager         = require('./racketsManager');
 global.socketsManager         = require('./socketsManager');
 global.stageManager           = require('./stageManager');
 global.syncManager            = require('./syncManager');
+global.shadersManager         = require('./shadersManager');
 
 
-if ( window.location.protocol === "file:" ) {
+if ( window.location.protocol === "file:" ) { // cordova
+
 	document.addEventListener("deviceready", onDeviceReady, false);
+
 } else {
+
 	appManager.init();
+
 }
 
 function onDeviceReady() {
 	appManager.init();
 }
 
-}).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_f89f457.js","/")
-},{"./appManager":6,"./ballsManager":7,"./desktopControlsManager":13,"./hudManager":15,"./particlesManager":16,"./physicsEngine":17,"./racketsManager":18,"./socketsManager":19,"./stageManager":20,"./syncManager":21,"./touchControlsManager":22,"buffer":1,"htZkx4":4}],15:[function(require,module,exports){
+}).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_59090148.js","/")
+},{"./appManager":6,"./ballsManager":7,"./desktopControlsManager":13,"./hudManager":15,"./particlesManager":16,"./physicsEngine":17,"./racketsManager":18,"./shadersManager":19,"./socketsManager":20,"./stageManager":21,"./syncManager":22,"./touchControlsManager":23,"buffer":1,"htZkx4":4}],15:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var Hud = require('./class/Hud');
 
@@ -9060,7 +9064,9 @@ var currentDelta = 0,
     currentDec = new Vector2(),
     currentRatio = 1,
     safetyGapSize = 6,
-    racketsMargin = 34;
+    racketsMargin = 34,
+    playerRacketSpeed = 8,
+    opponentRacketSpeed = 8;
 
 
 function init() {
@@ -9094,16 +9100,16 @@ function addVel( object, vel ) {
 
 function updateRackets() {
 
-    updateRacket( racketsManager.getLeftRacket() );
-    updateRacket( racketsManager.getRightRacket() );
+    updateRacket( racketsManager.getPlayerRacket(), playerRacketSpeed );
+    updateRacket( racketsManager.getOpponentRacket(), opponentRacketSpeed ); 
 
 }
 
-function updateRacket( racket ) {
+function updateRacket( racket, speed ) {
 
     if ( Math.abs( racket.y - racket.movingToY ) > 1 ) {
 
-        racket.y += ( racket.movingToY - racket.y ) * 8 * currentDelta;
+        racket.y += ( racket.movingToY - racket.y ) * speed * currentDelta;
 
     } else {
 
@@ -9346,11 +9352,26 @@ function updateSceneResizeValues( dec, ratio ) {
 
 }
 
+function setRacketsSpeed( isHost ) {
+
+    if (isHost) {
+
+        // update opponent racket with higher speed to correct lag offset
+        opponentRacketSpeed = 16;
+
+    } else {
+
+        opponentRacketSpeed = 8;
+
+    }
+}
+
 module.exports = {
     init: init,
     update: update,
     setVel: setVel,
     addVel: addVel,
+    setRacketsSpeed: setRacketsSpeed,
     updateSceneResizeValues: updateSceneResizeValues
 };
 
@@ -9435,6 +9456,12 @@ function getPlayerRacketY() {
 
 }
 
+function getOpponentRacketY() {
+
+    return rackets[opponentSide].y;
+
+}
+
 function getPlayerRacketMovingToY() {
 
     return rackets[playerSide].movingToY;
@@ -9450,6 +9477,18 @@ function getLeftRacket() {
 function getRightRacket() {
 
     return rackets.right;
+
+}
+
+function getPlayerRacket() {
+
+    return rackets[playerSide];
+
+}
+
+function getOpponentRacket() {
+
+    return rackets[opponentSide];
 
 }
 
@@ -9509,9 +9548,12 @@ module.exports = {
     moveOpponentRacketTo: moveOpponentRacketTo,
     movePlayerRacketBy: movePlayerRacketBy,
     getPlayerRacketY: getPlayerRacketY,
+    getOpponentRacketY: getOpponentRacketY,
     getPlayerRacketMovingToY: getPlayerRacketMovingToY,
     getLeftRacket: getLeftRacket,
     getRightRacket: getRightRacket,
+    getPlayerRacket: getPlayerRacket,
+    getOpponentRacket: getOpponentRacket,    
     getLeftRacketBoundsTopY: getLeftRacketBoundsTopY,
     getLeftRacketBoundsLeftX: getLeftRacketBoundsLeftX,
     getLeftRacketBoundsBottomY: getLeftRacketBoundsBottomY,
@@ -9524,6 +9566,128 @@ module.exports = {
 
 }).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/racketsManager.js","/")
 },{"./class/Racket":10,"buffer":1,"htZkx4":4}],19:[function(require,module,exports){
+(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+var scanFilter,
+    rgbSplitFilter,
+    pixelateFilter,
+    power = 3;
+
+
+function init() {
+
+    var uniforms = {};
+
+    uniforms.power = {
+        type: '1f',
+        value: 1 / 1000
+    };
+    uniforms.noise = {
+        type: '1f',
+        value: 0.2
+    };
+
+    var fragmentSrc = [
+
+        'precision mediump float;',
+        'varying vec2 vTextureCoord;',
+        'varying vec4 vColor;',
+        'uniform sampler2D uSampler;',
+        'uniform float noise;',
+        'uniform float power;',
+
+        'float rand(vec2 co) {',
+        '    return fract(sin(dot(co.xy ,vec2(12.9898,78.233 * noise))) * 43758.5453);',
+        '}',
+
+        'void main(void) {',
+        '   vec2 cord = vTextureCoord;',
+        '   cord.y += noise * 0.001;',
+
+        '    vec4 color = texture2D(uSampler, vTextureCoord);',
+
+        '    float diff = (rand(vTextureCoord) - 0.5) * 0.075;',
+        '    color.r += diff;',
+        '    color.g += diff;',
+        '    color.b += diff;',
+
+        '   gl_FragColor = color;',
+        '}'
+    ];
+
+    scanFilter = new PIXI.AbstractFilter( fragmentSrc, uniforms );
+
+    rgbSplitFilter = new PIXI.RGBSplitFilter();
+    setRGBSplitFilterSize( 3 );
+
+
+    pixelateFilter = new PIXI.PixelateFilter();
+
+    setPixelShaderSize( 3 );
+
+    stageManager.getStage().filters = [ pixelateFilter, rgbSplitFilter ];
+
+}
+
+function update( delta, time ) {
+    
+    // scanFilter.uniforms.power.value += (ease -  scanFilter.uniforms.power.value ) * 0.3;
+
+    // scanFilter.uniforms.noise.value += 0.1;
+    // scanFilter.uniforms.noise.value %= 1;
+    // scanFilter.syncUniforms();
+
+
+    // random auto glitch
+    power = power > 3 ? power * 0.9 : (Math.random() > 0.995 ? Math.random() * 30 : 3);
+
+    setRGBSplitFilterSize( time, power * 2 / 3 );
+    setPixelShaderSize( power );
+
+}
+
+function glitch( size ) {
+
+    size = size || 20;
+    power = Math.random() * size;
+
+}
+
+function setPixelShaderSize( size ) {
+
+    pixelateFilter.size.x = size;
+    pixelateFilter.size.y = size;
+
+}
+
+function setRGBSplitFilterSize( time, size ) {
+
+    var value = time / 160;
+
+    rgbSplitFilter.red = {
+        x: Math.cos( value ) * size,
+        y: Math.sin( value ) * size
+    };
+
+    rgbSplitFilter.green = {
+        x: Math.cos( value + Math.PI * 2 / 3 ) * size,
+        y: Math.sin( value + Math.PI * 2 / 3 ) * size
+    };
+
+    rgbSplitFilter.blue = {
+        x: Math.cos( value + Math.PI * 4 / 3 ) * size,
+        y: Math.sin( value + Math.PI * 4 / 3 ) * size
+    };
+
+}
+
+module.exports = {
+    init: init,
+    update: update,
+    glitch: glitch
+};
+
+}).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/shadersManager.js","/")
+},{"buffer":1,"htZkx4":4}],20:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var socket,
     connectionID,
@@ -9605,30 +9769,41 @@ function initApp () {
     var gameRoomID;
 
     socket.on('mobile top', function() {
-        hudManager.setDebug1Text('YOU: top');
+        var destY = racketsManager.getPlayerRacketY() - 340;
+        racketsManager.movePlayerRacketTo( destY, false );
+        syncManager.onRacketSetMovingToY( destY );
+        // hudManager.setDebug1Text('YOU: top');
     });
 
     socket.on('mobile bottom', function() {
-        hudManager.setDebug1Text('YOU: bottom');
+        var destY = racketsManager.getPlayerRacketY() + 340;
+        racketsManager.movePlayerRacketTo( destY, false );
+        syncManager.onRacketSetMovingToY( destY );
+        // hudManager.setDebug1Text('YOU: bottom');
     });
 
     socket.on('mobile stop', function() {
-        hudManager.setDebug1Text('YOU: ');
+        // hudManager.setDebug1Text('YOU: ');
     });
 
     socket.on('opponent top', function() {
-        hudManager.setDebug2Text('HIM: top');
+        racketsManager.moveOpponentRacketTo( racketsManager.getOpponentRacketY() - 340, false );
+
+        // hudManager.setDebug2Text('HIM: top');
     });
 
     socket.on('opponent bottom', function() {
-        hudManager.setDebug2Text('HIM: bottom');
+        racketsManager.moveOpponentRacketTo( racketsManager.getOpponentRacketY() + 340, false );
+
+        // hudManager.setDebug2Text('HIM: bottom');
     });
 
     socket.on('opponent stop', function() {
-        hudManager.setDebug2Text('HIM: ');
+        // hudManager.setDebug2Text('HIM: ');
     });
 
     socket.on('opponent disconnect', function() {
+        console.log('disconnected');
         hudManager.setInfosText('Opponent disconnected...');
         appManager.onOpponentDisconnect();
     });
@@ -9664,7 +9839,7 @@ module.exports = {
 };
 
 }).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/socketsManager.js","/")
-},{"buffer":1,"htZkx4":4}],20:[function(require,module,exports){
+},{"buffer":1,"htZkx4":4}],21:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var Scene = require( './class/Scene' );
 
@@ -9677,11 +9852,7 @@ var renderer,
     delta = 0,
     dec = new Vector2(),
     ratio = 1,
-    pixelateFilter,
     background,
-    colorStepFilter,
-    scanFilter,
-    rgbSplitFilter,
     checkDeltaInterval,
     startTime,
     emitter,
@@ -9697,56 +9868,7 @@ function init() {
     renderer = PIXI.autoDetectRenderer( window.innerWidth, window.innerHeight, null, false, true );
     document.getElementById( 'game' ).appendChild( renderer.view );
 
-
-    var uniforms = {};
-    uniforms.power = {
-        type: '1f',
-        value: 1 / 1000
-    };
-    uniforms.noise = {
-        type: '1f',
-        value: 0.2
-    };
-
-    //// grain filter..
-
-    var fragmentSrc = [
-
-        'precision mediump float;',
-        'varying vec2 vTextureCoord;',
-        'varying vec4 vColor;',
-        'uniform sampler2D uSampler;',
-        'uniform float noise;',
-        'uniform float power;',
-
-        'float rand(vec2 co) {',
-        '    return fract(sin(dot(co.xy ,vec2(12.9898,78.233 * noise))) * 43758.5453);',
-        '}',
-
-        'void main(void) {',
-        '   vec2 cord = vTextureCoord;',
-        '   cord.y += noise * 0.001;',
-
-        '    vec4 color = texture2D(uSampler, vTextureCoord);',
-
-        '    float diff = (rand(vTextureCoord) - 0.5) * 0.075;',
-        '    color.r += diff;',
-        '    color.g += diff;',
-        '    color.b += diff;',
-
-        '   gl_FragColor = color;',
-        '}'
-    ];
-
-    scanFilter = new PIXI.AbstractFilter( fragmentSrc, uniforms );
-
-    rgbSplitFilter = new PIXI.RGBSplitFilter();
-    setRGBSplitFilterSize( 3 );
-
-
-    pixelateFilter = new PIXI.PixelateFilter();
-    pixelateFilter.size.x = 3;
-    pixelateFilter.size.y = 3;
+    
 
     stats = new Stats();
     stats.domElement.style.position = 'absolute';
@@ -9766,13 +9888,12 @@ function init() {
 
     window.onresize = updateGameSize;
 
-    stage.filters = [ pixelateFilter, rgbSplitFilter ];
-    // stage.filters = [pixelateFilter];
 
     hudManager.init();
     racketsManager.init();
     physicsEngine.init();
     particlesManager.init();
+    shadersManager.init();
 
 
 
@@ -9791,17 +9912,11 @@ function update( time ) {
         delta = ( time - lastTime ) * 0.001;
         lastTime = time;
 
-        // scanFilter.uniforms.power.value += (ease -  scanFilter.uniforms.power.value ) * 0.3;
-
-        // scanFilter.uniforms.noise.value += 0.1;
-        // scanFilter.uniforms.noise.value %= 1;
-        // scanFilter.syncUniforms();
-
-        setRGBSplitFilterSize( time );
         desktopControlsManager.update( delta );
         touchControlsManager.update( delta );
         physicsEngine.update( delta );
         particlesManager.update( delta );
+        shadersManager.update( delta, time );
 
         stats.update();
 
@@ -9868,35 +9983,6 @@ function updateGameSize() {
 
 }
 
-function setPixelShaderSize( size ) {
-
-    pixelateFilter.size.x = size;
-    pixelateFilter.size.y = size;
-
-}
-
-function setRGBSplitFilterSize( time, size ) {
-
-    size = size || 2;
-    var value = time / 160;
-
-    rgbSplitFilter.red = {
-        x: Math.cos( value ) * size,
-        y: Math.sin( value ) * size
-    };
-
-    rgbSplitFilter.green = {
-        x: Math.cos( value + Math.PI * 2 / 3 ) * size,
-        y: Math.sin( value + Math.PI * 2 / 3 ) * size
-    };
-
-    rgbSplitFilter.blue = {
-        x: Math.cos( value + Math.PI * 4 / 3 ) * size,
-        y: Math.sin( value + Math.PI * 4 / 3 ) * size
-    };
-
-}
-
 function globalToSceneLocalX( x ) {
     return ( x - dec.x ) / ratio;
 }
@@ -9931,7 +10017,6 @@ function getRatio() {
 
 module.exports = {
     init: init,
-    setPixelShaderSize: setPixelShaderSize,
     getScene: getScene,
     getStage: getStage,
     globalToSceneLocalX: globalToSceneLocalX,
@@ -9943,7 +10028,7 @@ module.exports = {
 };
 
 }).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/stageManager.js","/")
-},{"./class/Scene":11,"buffer":1,"htZkx4":4}],21:[function(require,module,exports){
+},{"./class/Scene":11,"buffer":1,"htZkx4":4}],22:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 function init() {
 
@@ -10089,7 +10174,7 @@ module.exports = {
 };
 
 }).call(this,require("htZkx4"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/syncManager.js","/")
-},{"buffer":1,"htZkx4":4}],22:[function(require,module,exports){
+},{"buffer":1,"htZkx4":4}],23:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var touch = -1,
     resetTimeout;

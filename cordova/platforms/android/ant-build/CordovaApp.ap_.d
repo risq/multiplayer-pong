@@ -245,7 +245,6 @@ C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\a
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\js \
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\mobile \
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\package.json \
-C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\remote \
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\textures \
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\vendor \
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\css\main.css \
@@ -262,16 +261,6 @@ C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\a
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\mobile\js\vendor \
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\mobile\js\vendor\jquery-1.10.1.min.js \
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\mobile\js\vendor\modernizr-2.6.2-respond-1.1.0.min.js \
-C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\remote\css \
-C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\remote\index.html \
-C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\remote\js \
-C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\remote\css\main.css \
-C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\remote\css\normalize.css \
-C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\remote\css\normalize.min.css \
-C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\remote\js\main.js \
-C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\remote\js\vendor \
-C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\remote\js\vendor\jquery-1.10.1.min.js \
-C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\remote\js\vendor\modernizr-2.6.2-respond-1.1.0.min.js \
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\textures\pixel24.png \
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\vendor\cordova.js \
 C:\Users\valpc\Documents\dev\github\multiplayer-pong\cordova\platforms\android\assets\www\vendor\hammer.min.js \
